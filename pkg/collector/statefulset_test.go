@@ -15,6 +15,7 @@
 package collector_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,7 +45,7 @@ func TestStatefulSetNewDefault(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	ss := StatefulSet(cfg, logger, otelcol)
+	ss := StatefulSet(context.TODO(), cfg, logger, otelcol)
 
 	// verify
 	assert.Equal(t, "my-instance-collector", ss.Name)
@@ -107,7 +108,7 @@ func TestStatefulSetReplicas(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	ss := StatefulSet(cfg, logger, otelcol)
+	ss := StatefulSet(nil, cfg, logger, otelcol)
 
 	// assert correct number of replicas
 	assert.Equal(t, int32(3), *ss.Spec.Replicas)
@@ -137,7 +138,7 @@ func TestStatefulSetVolumeClaimTemplates(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	ss := StatefulSet(cfg, logger, otelcol)
+	ss := StatefulSet(nil, cfg, logger, otelcol)
 
 	// assert correct pvc name
 	assert.Equal(t, "added-volume", ss.Spec.VolumeClaimTemplates[0].Name)
@@ -163,7 +164,7 @@ func TestStatefulSetPodAnnotations(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	ss := StatefulSet(cfg, logger, otelcol)
+	ss := StatefulSet(nil, cfg, logger, otelcol)
 
 	// Add sha256 podAnnotation
 	testPodAnnotationValues["opentelemetry-operator-config/sha256"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -193,7 +194,7 @@ func TestStatefulSetPodSecurityContext(t *testing.T) {
 
 	cfg := config.New()
 
-	d := StatefulSet(cfg, logger, otelcol)
+	d := StatefulSet(nil, cfg, logger, otelcol)
 
 	assert.Equal(t, &runAsNonRoot, d.Spec.Template.Spec.SecurityContext.RunAsNonRoot)
 	assert.Equal(t, &runAsUser, d.Spec.Template.Spec.SecurityContext.RunAsUser)
@@ -210,7 +211,7 @@ func TestStatefulSetHostNetwork(t *testing.T) {
 
 	cfg := config.New()
 
-	d1 := StatefulSet(cfg, logger, otelcol_1)
+	d1 := StatefulSet(nil, cfg, logger, otelcol_1)
 
 	assert.Equal(t, d1.Spec.Template.Spec.HostNetwork, false)
 	assert.Equal(t, d1.Spec.Template.Spec.DNSPolicy, v1.DNSClusterFirst)
@@ -227,7 +228,7 @@ func TestStatefulSetHostNetwork(t *testing.T) {
 
 	cfg = config.New()
 
-	d2 := StatefulSet(cfg, logger, otelcol_2)
+	d2 := StatefulSet(nil, cfg, logger, otelcol_2)
 	assert.Equal(t, d2.Spec.Template.Spec.HostNetwork, true)
 	assert.Equal(t, d2.Spec.Template.Spec.DNSPolicy, v1.DNSClusterFirstWithHostNet)
 }
@@ -248,7 +249,7 @@ func TestStatefulSetFilterLabels(t *testing.T) {
 
 	cfg := config.New(config.WithLabelFilters([]string{"foo*", "app.*.bar"}))
 
-	d := StatefulSet(cfg, logger, otelcol)
+	d := StatefulSet(nil, cfg, logger, otelcol)
 
 	assert.Len(t, d.ObjectMeta.Labels, 6)
 	for k := range excludedLabels {
@@ -266,7 +267,7 @@ func TestStatefulSetNodeSelector(t *testing.T) {
 
 	cfg := config.New()
 
-	d1 := StatefulSet(cfg, logger, otelcol_1)
+	d1 := StatefulSet(nil, cfg, logger, otelcol_1)
 
 	assert.Empty(t, d1.Spec.Template.Spec.NodeSelector)
 
@@ -285,6 +286,6 @@ func TestStatefulSetNodeSelector(t *testing.T) {
 
 	cfg = config.New()
 
-	d2 := StatefulSet(cfg, logger, otelcol_2)
+	d2 := StatefulSet(nil, cfg, logger, otelcol_2)
 	assert.Equal(t, d2.Spec.Template.Spec.NodeSelector, map[string]string{"node-key": "node-value"})
 }

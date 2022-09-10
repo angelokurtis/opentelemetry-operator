@@ -17,6 +17,8 @@ package reconcile
 import (
 	"context"
 	"fmt"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
+	"go.opentelemetry.io/otel/attribute"
 
 	appsv1 "k8s.io/api/apps/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -31,10 +33,12 @@ import (
 
 // StatefulSets reconciles the stateful set(s) required for the instance in the current context.
 func StatefulSets(ctx context.Context, params Params) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
 
 	desired := []appsv1.StatefulSet{}
 	if params.Instance.Spec.Mode == "statefulset" {
-		desired = append(desired, collector.StatefulSet(params.Config, params.Log, params.Instance))
+		desired = append(desired, collector.StatefulSet(ctx, params.Config, params.Log, params.Instance))
 	}
 
 	// first, handle the create/update parts
@@ -51,6 +55,9 @@ func StatefulSets(ctx context.Context, params Params) error {
 }
 
 func expectedStatefulSets(ctx context.Context, params Params, expected []appsv1.StatefulSet) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	for _, obj := range expected {
 		desired := obj
 
@@ -60,8 +67,10 @@ func expectedStatefulSets(ctx context.Context, params Params, expected []appsv1.
 
 		existing := &appsv1.StatefulSet{}
 		nns := types.NamespacedName{Namespace: desired.Namespace, Name: desired.Name}
+		span.SetAttributes(attribute.Bool("client.get", true))
 		err := params.Client.Get(ctx, nns, existing)
 		if err != nil && k8serrors.IsNotFound(err) {
+			span.SetAttributes(attribute.Bool("client.create", true))
 			if err := params.Client.Create(ctx, &desired); err != nil {
 				return fmt.Errorf("failed to create: %w", err)
 			}
@@ -94,6 +103,7 @@ func expectedStatefulSets(ctx context.Context, params Params, expected []appsv1.
 		updated.Spec.Selector = existing.Spec.Selector.DeepCopy()
 
 		patch := client.MergeFrom(existing)
+		span.SetAttributes(attribute.Bool("client.patch", true))
 		if err := params.Client.Patch(ctx, updated, patch); err != nil {
 			return fmt.Errorf("failed to apply changes: %w", err)
 		}
@@ -105,6 +115,9 @@ func expectedStatefulSets(ctx context.Context, params Params, expected []appsv1.
 }
 
 func deleteStatefulSets(ctx context.Context, params Params, expected []appsv1.StatefulSet) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	opts := []client.ListOption{
 		client.InNamespace(params.Instance.Namespace),
 		client.MatchingLabels(map[string]string{

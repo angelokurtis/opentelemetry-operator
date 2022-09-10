@@ -17,6 +17,7 @@ package reconcile
 import (
 	"context"
 	"fmt"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
 
 	appsv1 "k8s.io/api/apps/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -33,6 +34,9 @@ import (
 
 // Deployments reconciles the deployment(s) required for the instance in the current context.
 func Deployments(ctx context.Context, params Params) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	desired := []appsv1.Deployment{}
 	if params.Instance.Spec.Mode == "deployment" {
 		desired = append(desired, collector.Deployment(params.Config, params.Log, params.Instance))

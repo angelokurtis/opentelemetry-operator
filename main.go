@@ -18,6 +18,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
 	"os"
 	"runtime"
 	"strings"
@@ -117,6 +118,9 @@ func main() {
 		"go-os", runtime.GOOS,
 		"labels-filter", labelsFilter,
 	)
+
+	cleanup := trace.Init()
+	defer cleanup(context.Background())
 
 	restConfig := ctrl.GetConfigOrDie()
 

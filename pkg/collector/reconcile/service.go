@@ -16,9 +16,11 @@ package reconcile
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-
 	"github.com/go-logr/logr"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
+	"go.opentelemetry.io/otel/attribute"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,6 +40,9 @@ import (
 
 // Services reconciles the service(s) required for the instance in the current context.
 func Services(ctx context.Context, params Params) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	desired := []corev1.Service{}
 	if params.Instance.Spec.Mode != v1alpha1.ModeSidecar {
 		type builder func(context.Context, Params) *corev1.Service
@@ -51,7 +56,7 @@ func Services(ctx context.Context, params Params) error {
 	}
 
 	if params.Instance.Spec.TargetAllocator.Enabled {
-		desired = append(desired, desiredTAService(params))
+		desired = append(desired, desiredTAService(ctx, params))
 	}
 
 	// first, handle the create/update parts
@@ -68,6 +73,9 @@ func Services(ctx context.Context, params Params) error {
 }
 
 func desiredService(ctx context.Context, params Params) *corev1.Service {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	labels := collector.Labels(params.Instance, []string{})
 	labels["app.kubernetes.io/name"] = naming.Service(params.Instance)
 
@@ -112,6 +120,12 @@ func desiredService(ctx context.Context, params Params) *corev1.Service {
 		return nil
 	}
 
+	bytes, err := json.Marshal(selector)
+	if err != nil {
+		fmt.Println("Can't serialize", selector)
+	}
+	span.SetAttributes(attribute.String("service.spec.selector", string(bytes)))
+
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        naming.Service(params.Instance),
@@ -127,7 +141,10 @@ func desiredService(ctx context.Context, params Params) *corev1.Service {
 	}
 }
 
-func desiredTAService(params Params) corev1.Service {
+func desiredTAService(ctx context.Context, params Params) corev1.Service {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	labels := targetallocator.Labels(params.Instance)
 	labels["app.kubernetes.io/name"] = naming.TAService(params.Instance)
 
@@ -152,6 +169,8 @@ func desiredTAService(params Params) corev1.Service {
 }
 
 func headless(ctx context.Context, params Params) *corev1.Service {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
 	h := desiredService(ctx, params)
 	if h == nil {
 		return nil
@@ -173,11 +192,20 @@ func headless(ctx context.Context, params Params) *corev1.Service {
 }
 
 func monitoringService(ctx context.Context, params Params) *corev1.Service {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	labels := collector.Labels(params.Instance, []string{})
 	labels["app.kubernetes.io/name"] = naming.MonitoringService(params.Instance)
 
 	selector := collector.Labels(params.Instance, []string{})
 	selector["app.kubernetes.io/name"] = fmt.Sprintf("%s-collector", params.Instance.Name)
+
+	bytes, err := json.Marshal(selector)
+	if err != nil {
+		fmt.Println("Can't serialize", selector)
+	}
+	span.SetAttributes(attribute.String("service.spec.selector", string(bytes)))
 
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -198,6 +226,9 @@ func monitoringService(ctx context.Context, params Params) *corev1.Service {
 }
 
 func expectedServices(ctx context.Context, params Params, expected []corev1.Service) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	for _, obj := range expected {
 		desired := obj
 
@@ -250,6 +281,9 @@ func expectedServices(ctx context.Context, params Params, expected []corev1.Serv
 }
 
 func deleteServices(ctx context.Context, params Params, expected []corev1.Service) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	opts := []client.ListOption{
 		client.InNamespace(params.Instance.Namespace),
 		client.MatchingLabels(map[string]string{

@@ -18,6 +18,7 @@ package reconcile
 import (
 	"context"
 	"fmt"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
 
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,6 +34,9 @@ import (
 // making params.Instance obsolete. Default values should be set in the Defaulter webhook, this should only be used
 // for the Status, which can't be set by the defaulter.
 func Self(ctx context.Context, params Params) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	changed := params.Instance
 
 	// this field is only changed for new instances: on existing instances this

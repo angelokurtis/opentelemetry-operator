@@ -17,6 +17,7 @@ package reconcile
 import (
 	"context"
 	"fmt"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
 
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	autoscalingv2beta2 "k8s.io/api/autoscaling/v2beta2"
@@ -34,6 +35,9 @@ import (
 
 // HorizontalPodAutoscaler reconciles HorizontalPodAutoscalers if autoscale is true and replicas is nil.
 func HorizontalPodAutoscalers(ctx context.Context, params Params) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	desired := []client.Object{}
 
 	// check if autoscale mode is on, e.g MaxReplicas is not nil

@@ -29,7 +29,7 @@ import (
 
 func TestExpectedStatefulsets(t *testing.T) {
 	param := params()
-	expectedSs := collector.StatefulSet(param.Config, logger, param.Instance)
+	expectedSs := collector.StatefulSet(context.TODO(), param.Config, logger, param.Instance)
 
 	t.Run("should create StatefulSet", func(t *testing.T) {
 		err := expectedStatefulSets(context.Background(), param, []v1.StatefulSet{expectedSs})

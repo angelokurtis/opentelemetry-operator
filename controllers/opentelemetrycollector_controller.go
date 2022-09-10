@@ -18,6 +18,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
 
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
@@ -129,6 +130,8 @@ func NewReconciler(p Params) *OpenTelemetryCollectorReconciler {
 // Reconcile the current state of an OpenTelemetry collector resource with the desired state.
 func (r *OpenTelemetryCollectorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.log.WithValues("opentelemetrycollector", req.NamespacedName)
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
 
 	var instance v1alpha1.OpenTelemetryCollector
 	if err := r.Get(ctx, req.NamespacedName, &instance); err != nil {
@@ -144,7 +147,7 @@ func (r *OpenTelemetryCollectorReconciler) Reconcile(ctx context.Context, req ct
 
 	params := reconcile.Params{
 		Config:   r.config,
-		Client:   r.Client,
+		Client:   trace.NewKubeClient(r.Client),
 		Instance: instance,
 		Log:      log,
 		Scheme:   r.scheme,
@@ -160,6 +163,8 @@ func (r *OpenTelemetryCollectorReconciler) Reconcile(ctx context.Context, req ct
 
 // RunTasks runs all the tasks associated with this reconciler.
 func (r *OpenTelemetryCollectorReconciler) RunTasks(ctx context.Context, params reconcile.Params) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
 	for _, task := range r.tasks {
 		if err := task.Do(ctx, params); err != nil {
 			r.log.Error(err, fmt.Sprintf("failed to reconcile %s", task.Name))

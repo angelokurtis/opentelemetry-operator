@@ -17,6 +17,7 @@ package reconcile
 import (
 	"context"
 	"fmt"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
 	"reflect"
 	"strings"
 
@@ -38,6 +39,9 @@ import (
 
 // ConfigMaps reconciles the config map(s) required for the instance in the current context.
 func ConfigMaps(ctx context.Context, params Params) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	desired := []corev1.ConfigMap{
 		desiredConfigMap(ctx, params),
 	}

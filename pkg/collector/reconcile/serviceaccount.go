@@ -17,6 +17,7 @@ package reconcile
 import (
 	"context"
 	"fmt"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
 
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -33,6 +34,9 @@ import (
 
 // ServiceAccounts reconciles the service account(s) required for the instance in the current context.
 func ServiceAccounts(ctx context.Context, params Params) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	desired := []corev1.ServiceAccount{}
 	if params.Instance.Spec.Mode != v1alpha1.ModeSidecar {
 		desired = append(desired, collector.ServiceAccount(params.Instance))

@@ -17,6 +17,7 @@ package reconcile
 import (
 	"context"
 	"fmt"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
 
 	appsv1 "k8s.io/api/apps/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -31,6 +32,9 @@ import (
 
 // DaemonSets reconciles the daemon set(s) required for the instance in the current context.
 func DaemonSets(ctx context.Context, params Params) error {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	desired := []appsv1.DaemonSet{}
 	if params.Instance.Spec.Mode == "daemonset" {
 		desired = append(desired, collector.DaemonSet(params.Config, params.Log, params.Instance))

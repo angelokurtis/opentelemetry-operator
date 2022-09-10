@@ -15,7 +15,12 @@
 package collector
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/go-logr/logr"
+	"github.com/open-telemetry/opentelemetry-operator/internal/trace"
+	"go.opentelemetry.io/otel/attribute"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,12 +31,21 @@ import (
 )
 
 // StatefulSet builds the statefulset for the given instance.
-func StatefulSet(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelemetryCollector) appsv1.StatefulSet {
+func StatefulSet(ctx context.Context, cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelemetryCollector) appsv1.StatefulSet {
+	span, ctx := trace.StartSpanFromContext(ctx)
+	defer span.End()
+
 	labels := Labels(otelcol, cfg.LabelsFilter())
 	labels["app.kubernetes.io/name"] = naming.Collector(otelcol)
 
 	annotations := Annotations(otelcol)
 	podAnnotations := PodAnnotations(otelcol)
+
+	bytes, err := json.Marshal(labels)
+	if err != nil {
+		fmt.Println("Can't serialize", labels)
+	}
+	span.SetAttributes(attribute.String("statefulset.spec.template.metadata.labels", string(bytes)))
 
 	return appsv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
