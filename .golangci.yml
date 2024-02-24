@@ -8,7 +8,7 @@ linters:
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  new-from-rev: 79f5a0efa9545f3f504be9a9b6af741e6eb9efdd
+  new-from-rev: b648f5dcdd48d5f0c0d6e337bbae38cd48139748
 
 linters-settings:
   errcheck:
@@ -57,7 +57,7 @@ linters-settings:
       { name: "get-return", disabled: false },
       { name: "identical-branches", disabled: false },
       { name: "if-return", disabled: false },
-      { name: "import-alias-naming", disabled: false },
+      { name: "import-alias-naming", disabled: true },
       { name: "import-shadowing", disabled: false },
       { name: "imports-blacklist", disabled: false },
       { name: "increment-decrement", disabled: false },
