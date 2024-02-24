@@ -178,7 +178,8 @@ func TestExistsIn(t *testing.T) {
 		pod      corev1.Pod
 		expected bool
 	}{
-		{"has-sidecar",
+		{
+			"has-sidecar",
 			corev1.Pod{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -187,15 +188,18 @@ func TestExistsIn(t *testing.T) {
 					},
 				},
 			},
-			true},
+			true,
+		},
 
-		{"does-not-have-sidecar",
+		{
+			"does-not-have-sidecar",
 			corev1.Pod{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{},
 				},
 			},
-			false},
+			false,
+		},
 	} {
 		t.Run(tt.desc, func(t *testing.T) {
 			assert.Equal(t, tt.expected, existsIn(tt.pod))
@@ -234,5 +238,4 @@ func TestAddSidecarWithAditionalEnv(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, changed.Spec.Containers, 2)
 	assert.Contains(t, changed.Spec.Containers[1].Env, extraEnv)
-
 }

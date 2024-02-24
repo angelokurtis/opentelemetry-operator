@@ -48,6 +48,7 @@ func (u VersionUpgrade) ManagedInstances(ctx context.Context) error {
 		}),
 	}
 	list := &v1alpha1.OpenTelemetryCollectorList{}
+
 	if err := u.Client.List(ctx, list, opts...); err != nil {
 		return fmt.Errorf("failed to list: %w", err)
 	}
@@ -65,17 +66,21 @@ func (u VersionUpgrade) ManagedInstances(ctx context.Context) error {
 			itemLogger.Info("skipping instance upgrade due to UpgradeStrategy")
 			continue
 		}
+
 		upgraded, err := u.ManagedInstance(ctx, original)
 		if err != nil {
 			const msg = "automated update not possible. Configuration must be corrected manually and CR instance must be re-created."
+
 			itemLogger.Info(msg)
 			u.Recorder.Event(&original, "Error", "Upgrade", msg)
+
 			continue
 		}
 
 		if !reflect.DeepEqual(upgraded, list.Items[i]) {
 			// the resource update overrides the status, so, keep it so that we can reset it later
 			st := upgraded.Status
+
 			patch := client.MergeFrom(&original)
 			if err := u.Client.Patch(ctx, &upgraded, patch); err != nil {
 				itemLogger.Error(err, "failed to apply changes to instance")
@@ -121,6 +126,7 @@ func (u VersionUpgrade) ManagedInstance(ctx context.Context, otelcol v1alpha1.Op
 		if err != nil {
 			return otelcol, err
 		}
+
 		if instanceV.LessThan(otelColV) {
 			u.Log.Info("upgraded OpenTelemetry Collector version", "name", otelcol.Name, "namespace", otelcol.Namespace, "version", otelcol.Status.Version)
 			otelcol.Status.Version = u.Version.OpenTelemetryCollector
@@ -133,8 +139,7 @@ func (u VersionUpgrade) ManagedInstance(ctx context.Context, otelcol v1alpha1.Op
 
 	for _, available := range versions {
 		if available.GreaterThan(instanceV) {
-			upgraded, err := available.upgrade(u, &otelcol) //available.upgrade(params., &otelcol)
-
+			upgraded, err := available.upgrade(u, &otelcol) // available.upgrade(params., &otelcol)
 			if err != nil {
 				u.Log.Error(err, "failed to upgrade managed otelcol instances", "name", otelcol.Name, "namespace", otelcol.Namespace)
 				return otelcol, err
@@ -149,5 +154,6 @@ func (u VersionUpgrade) ManagedInstance(ctx context.Context, otelcol v1alpha1.Op
 	otelcol.Status.Version = u.Version.OpenTelemetryCollector
 
 	u.Log.V(1).Info("final version", "name", otelcol.Name, "namespace", otelcol.Namespace, "version", otelcol.Status.Version)
+
 	return otelcol, nil
 }

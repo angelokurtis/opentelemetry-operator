@@ -75,6 +75,7 @@ func NewReconciler(p Params) *OpenTelemetryCollectorReconciler {
 		config:   p.Config,
 		recorder: p.Recorder,
 	}
+
 	return r
 }
 
@@ -123,7 +124,9 @@ func (r *OpenTelemetryCollectorReconciler) Reconcile(ctx context.Context, req ct
 	if buildErr != nil {
 		return ctrl.Result{}, buildErr
 	}
+
 	err := reconcileDesiredObjects(ctx, r.Client, log, &params.OtelCol, params.Scheme, desiredObjects...)
+
 	return collectorStatus.HandleReconcileStatus(ctx, log, params, err)
 }
 

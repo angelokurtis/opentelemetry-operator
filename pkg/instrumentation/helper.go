@@ -36,6 +36,7 @@ func isInitContainerMissing(pod corev1.Pod, containerName string) bool {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -72,6 +73,7 @@ func isAutoInstrumentationInjected(pod corev1.Pod) bool {
 			}
 		}
 	}
+
 	return false
 }
 
@@ -84,7 +86,9 @@ func findDuplicatedContainers(ctrs []string) error {
 	splitContainers := strings.Split(mergedContainers, ",")
 
 	countMap := make(map[string]int)
+
 	var duplicates []string
+
 	for _, str := range splitContainers {
 		countMap[str]++
 	}
@@ -131,5 +135,6 @@ func volumeSize(quantity *resource.Quantity) *resource.Quantity {
 	if quantity == nil {
 		return &defaultSize
 	}
+
 	return quantity
 }

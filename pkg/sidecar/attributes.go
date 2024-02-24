@@ -38,7 +38,6 @@ type podReferences struct {
 // getResourceAttributesEnv returns a list of environment variables. The list contains OTEL_RESOURCE_ATTRIBUTES and additional environment variables that use Kubernetes downward API to read pod specification.
 // see: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
 func getResourceAttributesEnv(ns corev1.Namespace, podReferences podReferences) []corev1.EnvVar {
-
 	var envvars []corev1.EnvVar
 
 	attributes := map[attribute.Key]string{
@@ -101,11 +100,13 @@ func mapToValue(attributesMap map[attribute.Key]string) string {
 	for k := range attributesMap {
 		keys = append(keys, string(k))
 	}
+
 	sort.Strings(keys)
 
 	for _, key := range keys {
 		parts = append(parts, fmt.Sprintf("%s=%s", key, attributesMap[attribute.Key(key)]))
 	}
+
 	return strings.Join(parts, ",")
 }
 
@@ -116,5 +117,6 @@ func hasResourceAttributeEnvVar(envvars []corev1.EnvVar) bool {
 			return true
 		}
 	}
+
 	return false
 }

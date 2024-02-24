@@ -29,6 +29,7 @@ func ServiceAccountName(instance v1alpha1.OpAMPBridge) string {
 	if len(instance.Spec.ServiceAccount) == 0 {
 		return naming.OpAMPBridgeServiceAccount(instance.Name)
 	}
+
 	return instance.Spec.ServiceAccount
 }
 

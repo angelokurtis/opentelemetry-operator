@@ -106,13 +106,16 @@ func (p *sidecarPodMutator) getCollectorInstance(ctx context.Context, ns corev1.
 	}
 
 	otelcol := v1alpha1.OpenTelemetryCollector{}
+
 	var nsnOtelcol types.NamespacedName
+
 	instNamespace, instName, namespaced := strings.Cut(ann, "/")
 	if namespaced {
 		nsnOtelcol = types.NamespacedName{Name: instName, Namespace: instNamespace}
 	} else {
 		nsnOtelcol = types.NamespacedName{Name: ann, Namespace: ns.Name}
 	}
+
 	err := p.client.Get(ctx, nsnOtelcol, &otelcol)
 	if err != nil {
 		return otelcol, err
@@ -155,13 +158,16 @@ func (p *sidecarPodMutator) selectCollectorInstance(ctx context.Context, ns core
 func (p *sidecarPodMutator) podReferences(ctx context.Context, ownerReferences []metav1.OwnerReference, ns corev1.Namespace) podReferences {
 	references := &podReferences{}
 	replicaSet := p.getReplicaSetReference(ctx, ownerReferences, ns)
+
 	if replicaSet != nil {
 		references.replicaset = replicaSet
 		deployment := p.getDeploymentReference(ctx, replicaSet)
+
 		if deployment != nil {
 			references.deployment = deployment
 		}
 	}
+
 	return *references
 }
 
@@ -170,10 +176,12 @@ func (p *sidecarPodMutator) getReplicaSetReference(ctx context.Context, ownerRef
 	if replicaSetName != "" {
 		replicaSet := &appsv1.ReplicaSet{}
 		err := p.client.Get(ctx, types.NamespacedName{Name: replicaSetName, Namespace: ns.Name}, replicaSet)
+
 		if err == nil {
 			return replicaSet
 		}
 	}
+
 	return nil
 }
 
@@ -182,10 +190,12 @@ func (p *sidecarPodMutator) getDeploymentReference(ctx context.Context, replicaS
 	if deploymentName != "" {
 		deployment := &appsv1.Deployment{}
 		err := p.client.Get(ctx, types.NamespacedName{Name: deploymentName, Namespace: replicaSet.Namespace}, deployment)
+
 		if err == nil {
 			return deployment
 		}
 	}
+
 	return nil
 }
 
@@ -195,5 +205,6 @@ func findOwnerReferenceKind(references []metav1.OwnerReference, kind string) str
 			return reference.Name
 		}
 	}
+
 	return ""
 }

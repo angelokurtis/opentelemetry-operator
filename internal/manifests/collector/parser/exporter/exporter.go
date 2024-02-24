@@ -43,6 +43,7 @@ func For(logger logr.Logger, name string, config map[interface{}]interface{}) (p
 	if builder == nil {
 		return nil, fmt.Errorf("no builders for %s", name)
 	}
+
 	return builder(logger, name, config), nil
 }
 
@@ -57,9 +58,7 @@ func IsRegistered(name string) bool {
 	return ok
 }
 
-var (
-	endpointKey = "endpoint"
-)
+var endpointKey = "endpoint"
 
 func singlePortFromConfigEndpoint(logger logr.Logger, name string, config map[interface{}]interface{}) *corev1.ServicePort {
 	endpoint := getAddressFromConfig(logger, name, endpointKey, config)
@@ -91,18 +90,19 @@ func getAddressFromConfig(logger logr.Logger, name, key string, config map[inter
 		logger.V(2).Info("%s exporter doesn't have an %s", name, key)
 		return nil
 	}
+
 	return endpoint
 }
 
 func portFromEndpoint(endpoint string) (int32, error) {
 	var err error
+
 	var port int64
 
 	r := regexp.MustCompile(":[0-9]+")
 
 	if r.MatchString(endpoint) {
 		port, err = strconv.ParseInt(strings.Replace(r.FindString(endpoint), ":", "", -1), 10, 32)
-
 		if err != nil {
 			return 0, err
 		}

@@ -57,6 +57,7 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 	}
 
 	var volumeMounts []corev1.VolumeMount
+
 	argsMap := otelcol.Spec.Args
 	if argsMap == nil {
 		argsMap = map[string]string{}
@@ -75,6 +76,7 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 			logger.Info("the 'config' flag isn't allowed and is being ignored")
 			delete(argsMap, "config")
 		}
+
 		args = append(args, fmt.Sprintf("--config=/conf/%s", cfg.CollectorConfigMapEntry()))
 		volumeMounts = append(volumeMounts,
 			corev1.VolumeMount{
@@ -90,6 +92,7 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 	for k, v := range argsMap {
 		sortedArgs = append(sortedArgs, fmt.Sprintf("--%s=%s", k, v))
 	}
+
 	sort.Strings(sortedArgs)
 	args = append(args, sortedArgs...)
 
@@ -97,7 +100,7 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 		volumeMounts = append(volumeMounts, otelcol.Spec.VolumeMounts...)
 	}
 
-	var envVars = otelcol.Spec.Env
+	envVars := otelcol.Spec.Env
 	if otelcol.Spec.Env == nil {
 		envVars = []corev1.EnvVar{}
 	}
@@ -133,6 +136,7 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 	}
 
 	var livenessProbe *corev1.Probe
+
 	if configFromString, err := adapters.ConfigFromString(otelcol.Spec.Config); err == nil {
 		if probe, err := getLivenessProbe(configFromString, otelcol.Spec.LivenessProbe); err == nil {
 			livenessProbe = probe
@@ -146,6 +150,7 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 	}
 
 	envVars = append(envVars, proxy.ReadProxyVarsFromEnv()...)
+
 	return corev1.Container{
 		Name:            naming.Container(),
 		Image:           image,
@@ -164,15 +169,18 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 
 func getConfigContainerPorts(logger logr.Logger, cfg string) (map[string]corev1.ContainerPort, error) {
 	ports := map[string]corev1.ContainerPort{}
+
 	c, err := adapters.ConfigFromString(cfg)
 	if err != nil {
 		logger.Error(err, "couldn't extract the configuration")
 		return ports, err
 	}
+
 	ps, err := adapters.ConfigToPorts(logger, c)
 	if err != nil {
 		return ports, err
 	}
+
 	if len(ps) > 0 {
 		for _, p := range ps {
 			truncName := naming.Truncate(p.Name, maxPortLen)
@@ -180,13 +188,16 @@ func getConfigContainerPorts(logger logr.Logger, cfg string) (map[string]corev1.
 				logger.Info("truncating container port name",
 					"port.name.prev", p.Name, "port.name.new", truncName)
 			}
+
 			nameErrs := validation.IsValidPortName(truncName)
 			numErrs := validation.IsValidPortNum(int(p.Port))
+
 			if len(nameErrs) > 0 || len(numErrs) > 0 {
 				logger.Info("dropping invalid container port", "port.name", truncName, "port.num", p.Port,
 					"port.name.errs", nameErrs, "num.errs", numErrs)
 				continue
 			}
+
 			ports[truncName] = corev1.ContainerPort{
 				Name:          truncName,
 				ContainerPort: p.Port,
@@ -198,8 +209,10 @@ func getConfigContainerPorts(logger logr.Logger, cfg string) (map[string]corev1.
 	metricsPort, err := adapters.ConfigToMetricsPort(logger, c)
 	if err != nil {
 		logger.Info("couldn't determine metrics port from configuration, using 8888 default value", "error", err)
+
 		metricsPort = 8888
 	}
+
 	ports["metrics"] = corev1.ContainerPort{
 		Name:          "metrics",
 		ContainerPort: metricsPort,
@@ -214,9 +227,11 @@ func portMapToList(portMap map[string]corev1.ContainerPort) []corev1.ContainerPo
 	for _, p := range portMap {
 		ports = append(ports, p)
 	}
+
 	sort.Slice(ports, func(i, j int) bool {
 		return ports[i].Name < ports[j].Name
 	})
+
 	return ports
 }
 
@@ -225,23 +240,30 @@ func getLivenessProbe(config map[interface{}]interface{}, probeConfig *v1alpha1.
 	if err != nil {
 		return nil, err
 	}
+
 	if probeConfig != nil {
 		if probeConfig.InitialDelaySeconds != nil {
 			probe.InitialDelaySeconds = *probeConfig.InitialDelaySeconds
 		}
+
 		if probeConfig.PeriodSeconds != nil {
 			probe.PeriodSeconds = *probeConfig.PeriodSeconds
 		}
+
 		if probeConfig.FailureThreshold != nil {
 			probe.FailureThreshold = *probeConfig.FailureThreshold
 		}
+
 		if probeConfig.SuccessThreshold != nil {
 			probe.SuccessThreshold = *probeConfig.SuccessThreshold
 		}
+
 		if probeConfig.TimeoutSeconds != nil {
 			probe.TimeoutSeconds = *probeConfig.TimeoutSeconds
 		}
+
 		probe.TerminationGracePeriodSeconds = probeConfig.TerminationGracePeriodSeconds
 	}
+
 	return probe, nil
 }

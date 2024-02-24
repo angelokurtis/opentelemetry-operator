@@ -23,7 +23,9 @@ import (
 type Builder func(params Params) ([]client.Object, error)
 
 type ManifestFactory[T client.Object] func(params Params) (T, error)
+
 type SimpleManifestFactory[T client.Object] func(params Params) T
+
 type K8sManifestFactory ManifestFactory[client.Object]
 
 func FactoryWithoutError[T client.Object](f SimpleManifestFactory[T]) K8sManifestFactory {

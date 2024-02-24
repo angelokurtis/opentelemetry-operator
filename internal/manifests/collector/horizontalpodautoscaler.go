@@ -30,6 +30,7 @@ func HorizontalPodAutoscaler(params manifests.Params) client.Object {
 	name := naming.Collector(params.OtelCol.Name)
 	labels := manifestutils.Labels(params.OtelCol.ObjectMeta, name, params.OtelCol.Spec.Image, ComponentOpenTelemetryCollector, params.Config.LabelsFilter())
 	annotations := Annotations(params.OtelCol)
+
 	var result client.Object
 
 	objectMeta := metav1.ObjectMeta{
@@ -114,6 +115,7 @@ func HorizontalPodAutoscaler(params manifests.Params) client.Object {
 			autoscaler.Spec.Metrics = append(autoscaler.Spec.Metrics, v2metric)
 		} // pod metrics
 	}
+
 	result = &autoscaler
 
 	return result

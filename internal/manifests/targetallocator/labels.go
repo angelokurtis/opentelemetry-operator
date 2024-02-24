@@ -31,5 +31,6 @@ func SelectorLabels(instance v1alpha1.OpenTelemetryCollector) map[string]string 
 	// TargetAllocator uses the name label as well for selection
 	// This is inconsistent with the Collector, but changing is a somewhat painful breaking change
 	selectorLabels["app.kubernetes.io/name"] = naming.TargetAllocator(instance.Name)
+
 	return selectorLabels
 }

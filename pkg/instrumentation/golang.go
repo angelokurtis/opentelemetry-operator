@@ -40,6 +40,7 @@ func injectGoSDK(goSpec v1alpha1.Go, pod corev1.Pod) (corev1.Pod, error) {
 	// skip instrumentation when more than one containers provided
 	containerNames := ""
 	ok := false
+
 	if featuregate.EnableMultiInstrumentationSupport.IsEnabled() {
 		containerNames, ok = pod.Annotations[annotationInjectGoContainersName]
 	} else {
@@ -97,5 +98,6 @@ func injectGoSDK(goSpec v1alpha1.Go, pod corev1.Pod) (corev1.Pod, error) {
 			},
 		},
 	})
+
 	return pod, nil
 }

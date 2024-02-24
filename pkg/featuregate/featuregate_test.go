@@ -17,10 +17,9 @@ package featuregate
 import (
 	"testing"
 
-	"go.opentelemetry.io/collector/featuregate"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/collector/featuregate"
 )
 
 const (
@@ -33,6 +32,7 @@ func TestSetFlag(t *testing.T) {
 	featuregate.GlobalRegistry().MustRegister(basicGate, featuregate.StageAlpha)
 	featuregate.GlobalRegistry().MustRegister(advancedGate, featuregate.StageBeta)
 	featuregate.GlobalRegistry().MustRegister(falseGate, featuregate.StageStable, featuregate.WithRegisterToVersion("v0.0.1"))
+
 	tests := []struct {
 		name          string
 		args          []string
@@ -66,18 +66,21 @@ func TestSetFlag(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			flgs := Flags(featuregate.GlobalRegistry())
+
 			err := flgs.Parse(tt.args)
 			if tt.expectedErr != "" {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 			}
+
 			featuregate.GlobalRegistry().VisitAll(func(gate *featuregate.Gate) {
 				for _, id := range tt.expectedTrue {
 					if gate.ID() == id {
 						assert.True(t, gate.IsEnabled())
 					}
 				}
+
 				for _, id := range tt.expectedFalse {
 					if gate.ID() == id {
 						assert.False(t, gate.IsEnabled())

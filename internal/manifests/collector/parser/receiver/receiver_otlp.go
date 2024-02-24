@@ -97,6 +97,7 @@ func (o *OTLPReceiverParser) Ports() ([]corev1.ServicePort, error) {
 		if receiverProtocol, ok := o.config[protocol.name]; ok {
 			// we have the specified protocol, we definitely need a service port
 			nameWithProtocol := fmt.Sprintf("%s-%s", o.name, protocol.name)
+
 			var protocolPort *corev1.ServicePort
 
 			// do we have a configuration block for the protocol?
@@ -118,6 +119,7 @@ func (o *OTLPReceiverParser) Ports() ([]corev1.ServicePort, error) {
 					protocolPort.Protocol = corev1.ProtocolTCP
 					protocolPort.AppProtocol = &http
 				}
+
 				ports = append(ports, *protocolPort)
 			}
 		}

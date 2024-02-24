@@ -18,13 +18,11 @@ package adapters
 import (
 	"errors"
 
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
-var (
-	// ErrInvalidYAML represents an error in the format of the configuration file.
-	ErrInvalidYAML = errors.New("couldn't parse the opentelemetry-collector configuration")
-)
+// ErrInvalidYAML represents an error in the format of the configuration file.
+var ErrInvalidYAML = errors.New("couldn't parse the opentelemetry-collector configuration")
 
 // ConfigFromString extracts a configuration map from the given string.
 // If the given string isn't a valid YAML, ErrInvalidYAML is returned.

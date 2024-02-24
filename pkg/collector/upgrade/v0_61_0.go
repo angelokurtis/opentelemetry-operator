@@ -45,6 +45,7 @@ func upgrade0_61_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 		if !ok {
 			continue
 		}
+
 		cfg, ok := rc.(map[any]any)
 		// check if jaeger is configured
 		if !ok || !strings.HasPrefix(k, "jaeger") {
@@ -63,7 +64,9 @@ func upgrade0_61_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 			issueID,
 		)
 		u.Recorder.Event(otelcol, "Error", "Upgrade", errStr)
+
 		return nil, errors.New(errStr)
 	}
+
 	return otelcol, nil
 }

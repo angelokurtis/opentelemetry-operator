@@ -117,6 +117,7 @@ func TestDesiredRoutes(t *testing.T) {
 
 		routes, err := Routes(params)
 		assert.NoError(t, err)
+
 		got := routes[0]
 
 		assert.NotEqual(t, &routev1.Route{
@@ -208,5 +209,4 @@ func TestRoutes(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Nil(t, routes)
 	})
-
 }

@@ -348,7 +348,6 @@ func TestRateLimit(t *testing.T) {
 	elapsedTime := time.Since(startTime)
 	assert.Less(t, eventInterval, elapsedTime)
 	assert.GreaterOrEqual(t, eventInterval*3, elapsedTime)
-
 }
 
 // getTestPrometheuCRWatcher creates a test instance of PrometheusCRWatcher with fake clients

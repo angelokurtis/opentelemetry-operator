@@ -22,7 +22,6 @@ import (
 
 func TestConfigValidate(t *testing.T) {
 	// prepare
-
 	// First Test - Exporters
 	configStr := `
 receivers:
@@ -63,7 +62,6 @@ service:
 
 func TestEmptyEnabledReceivers(t *testing.T) {
 	// prepare
-
 	// First Test - Exporters
 	configStr := `
 receivers:

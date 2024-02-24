@@ -127,6 +127,7 @@ func TestShouldInjectSidecar(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := k8sClient.Create(context.Background(), &tt.ns)
 			require.NoError(t, err)
+
 			defer func() {
 				_ = k8sClient.Delete(context.Background(), &tt.ns)
 			}()
@@ -166,6 +167,7 @@ func TestShouldInjectSidecar(t *testing.T) {
 				"/metadata/labels": false, // add a new label
 				"/spec/containers": false, // replace the containers, adding one new container
 			}
+
 			for _, patch := range res.Patches {
 				// quick and dirty solution
 				if patch.Path == "/spec/containers" {
@@ -176,6 +178,7 @@ func TestShouldInjectSidecar(t *testing.T) {
 
 				expectedMap[patch.Path] = true
 			}
+
 			for k := range expectedMap {
 				assert.True(t, expectedMap[k], "patch with path %s not found", k)
 			}
@@ -346,6 +349,7 @@ func TestPodShouldNotBeChanged(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := k8sClient.Create(context.Background(), &tt.ns)
 			require.NoError(t, err)
+
 			defer func() {
 				_ = k8sClient.Delete(context.Background(), &tt.ns)
 			}()
@@ -372,6 +376,7 @@ func TestPodShouldNotBeChanged(t *testing.T) {
 			cfg := config.New()
 			decoder := admission.NewDecoder(scheme.Scheme)
 			injector := NewWebhookHandler(cfg, logger, decoder, k8sClient, []PodMutator{sidecar.NewMutator(logger, cfg, k8sClient)})
+
 			require.NoError(t, err)
 
 			// test

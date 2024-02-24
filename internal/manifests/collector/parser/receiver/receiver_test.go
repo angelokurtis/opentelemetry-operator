@@ -129,6 +129,7 @@ func TestReceiverFallbackWhenNotRegistered(t *testing.T) {
 func TestReceiverShouldFindRegisteredParser(t *testing.T) {
 	// prepare
 	builderCalled := false
+
 	Register("mock", func(logger logr.Logger, name string, config map[interface{}]interface{}) parser.ComponentPortParser {
 		builderCalled = true
 		return &mockParser{}
@@ -141,8 +142,7 @@ func TestReceiverShouldFindRegisteredParser(t *testing.T) {
 	assert.True(t, builderCalled)
 }
 
-type mockParser struct {
-}
+type mockParser struct{}
 
 func (m *mockParser) Ports() ([]corev1.ServicePort, error) {
 	return nil, nil

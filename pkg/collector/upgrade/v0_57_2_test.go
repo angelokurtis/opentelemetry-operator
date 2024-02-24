@@ -62,7 +62,7 @@ service:
 	}
 
 	collectorInstance.Status.Version = "0.56.0"
-	//Test to remove port and change endpoint value.
+	// Test to remove port and change endpoint value.
 	versionUpgrade := &upgrade.VersionUpgrade{
 		Log:      logger,
 		Version:  version.Get(),

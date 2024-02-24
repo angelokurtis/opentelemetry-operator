@@ -15,15 +15,14 @@
 package opampbridge
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 	"github.com/open-telemetry/opentelemetry-operator/internal/config"
 	"github.com/open-telemetry/opentelemetry-operator/internal/manifests"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDesiredConfigMap(t *testing.T) {
@@ -61,7 +60,8 @@ componentsAllowed:
 endpoint: ws://opamp-server:4320/v1/opamp
 headers:
   authorization: access-12345-token
-`}
+`,
+		}
 
 		opampBridge := v1alpha1.OpAMPBridge{
 			ObjectMeta: metav1.ObjectMeta{

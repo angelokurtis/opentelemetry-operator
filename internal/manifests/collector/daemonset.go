@@ -31,6 +31,7 @@ func DaemonSet(params manifests.Params) *appsv1.DaemonSet {
 
 	annotations := Annotations(params.OtelCol)
 	podAnnotations := PodAnnotations(params.OtelCol)
+
 	return &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        naming.Collector(params.OtelCol.Name),

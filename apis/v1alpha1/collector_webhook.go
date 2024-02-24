@@ -85,6 +85,7 @@ func (c CollectorWebhook) Default(ctx context.Context, obj runtime.Object) error
 	if !ok {
 		return fmt.Errorf("expected an OpenTelemetryCollector, received %T", obj)
 	}
+
 	return c.defaulter(otelcol)
 }
 
@@ -93,6 +94,7 @@ func (c CollectorWebhook) ValidateCreate(ctx context.Context, obj runtime.Object
 	if !ok {
 		return nil, fmt.Errorf("expected an OpenTelemetryCollector, received %T", obj)
 	}
+
 	return c.validate(ctx, otelcol)
 }
 
@@ -101,6 +103,7 @@ func (c CollectorWebhook) ValidateUpdate(ctx context.Context, oldObj, newObj run
 	if !ok {
 		return nil, fmt.Errorf("expected an OpenTelemetryCollector, received %T", newObj)
 	}
+
 	return c.validate(ctx, otelcol)
 }
 
@@ -109,6 +112,7 @@ func (c CollectorWebhook) ValidateDelete(ctx context.Context, obj runtime.Object
 	if !ok || otelcol == nil {
 		return nil, fmt.Errorf("expected an OpenTelemetryCollector, received %T", obj)
 	}
+
 	return c.validate(ctx, otelcol)
 }
 
@@ -116,6 +120,7 @@ func (c CollectorWebhook) defaulter(r *OpenTelemetryCollector) error {
 	if len(r.Spec.Mode) == 0 {
 		r.Spec.Mode = ModeDeployment
 	}
+
 	if len(r.Spec.UpgradeStrategy) == 0 {
 		r.Spec.UpgradeStrategy = UpgradeStrategyAutomatic
 	}
@@ -123,6 +128,7 @@ func (c CollectorWebhook) defaulter(r *OpenTelemetryCollector) error {
 	if r.Labels == nil {
 		r.Labels = map[string]string{}
 	}
+
 	if r.Labels["app.kubernetes.io/managed-by"] == "" {
 		r.Labels["app.kubernetes.io/managed-by"] = "opentelemetry-operator"
 	}
@@ -133,6 +139,7 @@ func (c CollectorWebhook) defaulter(r *OpenTelemetryCollector) error {
 	if r.Spec.Replicas == nil {
 		r.Spec.Replicas = &one
 	}
+
 	if r.Spec.TargetAllocator.Enabled && r.Spec.TargetAllocator.Replicas == nil {
 		r.Spec.TargetAllocator.Replicas = &one
 	}
@@ -145,6 +152,7 @@ func (c CollectorWebhook) defaulter(r *OpenTelemetryCollector) error {
 		if r.Spec.Autoscaler.MaxReplicas == nil {
 			r.Spec.Autoscaler.MaxReplicas = r.Spec.MaxReplicas
 		}
+
 		if r.Spec.Autoscaler.MinReplicas == nil {
 			if r.Spec.MinReplicas != nil {
 				r.Spec.Autoscaler.MinReplicas = r.Spec.MinReplicas
@@ -191,6 +199,7 @@ func (c CollectorWebhook) defaulter(r *OpenTelemetryCollector) error {
 	if r.Spec.Ingress.Type == IngressTypeRoute && r.Spec.Ingress.Route.Termination == "" {
 		r.Spec.Ingress.Route.Termination = TLSRouteTerminationTypeEdge
 	}
+
 	if r.Spec.Ingress.Type == IngressTypeNginx && r.Spec.Ingress.RuleType == "" {
 		r.Spec.Ingress.RuleType = IngressRuleTypePath
 	}
@@ -199,6 +208,7 @@ func (c CollectorWebhook) defaulter(r *OpenTelemetryCollector) error {
 	if len(r.Spec.ManagementState) == 0 {
 		r.Spec.ManagementState = ManagementStateManaged
 	}
+
 	return nil
 }
 
@@ -239,10 +249,12 @@ func (c CollectorWebhook) validate(ctx context.Context, r *OpenTelemetryCollecto
 		if err != nil {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec Prometheus configuration is incorrect, %w", err)
 		}
+
 		err = ta.ValidatePromConfig(promCfg, r.Spec.TargetAllocator.Enabled, featuregate.EnableTargetAllocatorRewrite.IsEnabled())
 		if err != nil {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec Prometheus configuration is incorrect, %w", err)
 		}
+
 		err = ta.ValidateTargetAllocatorConfig(r.Spec.TargetAllocator.PrometheusCR.Enabled, promCfg)
 		if err != nil {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec Prometheus configuration is incorrect, %w", err)
@@ -261,6 +273,7 @@ func (c CollectorWebhook) validate(ctx context.Context, r *OpenTelemetryCollecto
 	for _, p := range r.Spec.Ports {
 		nameErrs := validation.IsValidPortName(p.Name)
 		numErrs := validation.IsValidPortNum(int(p.Port))
+
 		if len(nameErrs) > 0 || len(numErrs) > 0 {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec Ports configuration is incorrect, port name '%s' errors: %s, num '%d' errors: %s",
 				p.Name, nameErrs, p.Port, numErrs)
@@ -327,6 +340,7 @@ func (c CollectorWebhook) validate(ctx context.Context, r *OpenTelemetryCollecto
 			ModeDeployment, ModeDaemonSet, ModeStatefulSet,
 		)
 	}
+
 	if r.Spec.Ingress.RuleType == IngressRuleTypeSubdomain && (r.Spec.Ingress.Hostname == "" || r.Spec.Ingress.Hostname == "*") {
 		return warnings, fmt.Errorf("a valid Ingress hostname has to be defined for subdomain ruleType")
 	}
@@ -335,18 +349,23 @@ func (c CollectorWebhook) validate(ctx context.Context, r *OpenTelemetryCollecto
 		if r.Spec.LivenessProbe.InitialDelaySeconds != nil && *r.Spec.LivenessProbe.InitialDelaySeconds < 0 {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec LivenessProbe InitialDelaySeconds configuration is incorrect. InitialDelaySeconds should be greater than or equal to 0")
 		}
+
 		if r.Spec.LivenessProbe.PeriodSeconds != nil && *r.Spec.LivenessProbe.PeriodSeconds < 1 {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec LivenessProbe PeriodSeconds configuration is incorrect. PeriodSeconds should be greater than or equal to 1")
 		}
+
 		if r.Spec.LivenessProbe.TimeoutSeconds != nil && *r.Spec.LivenessProbe.TimeoutSeconds < 1 {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec LivenessProbe TimeoutSeconds configuration is incorrect. TimeoutSeconds should be greater than or equal to 1")
 		}
+
 		if r.Spec.LivenessProbe.SuccessThreshold != nil && *r.Spec.LivenessProbe.SuccessThreshold < 1 {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec LivenessProbe SuccessThreshold configuration is incorrect. SuccessThreshold should be greater than or equal to 1")
 		}
+
 		if r.Spec.LivenessProbe.FailureThreshold != nil && *r.Spec.LivenessProbe.FailureThreshold < 1 {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec LivenessProbe FailureThreshold configuration is incorrect. FailureThreshold should be greater than or equal to 1")
 		}
+
 		if r.Spec.LivenessProbe.TerminationGracePeriodSeconds != nil && *r.Spec.LivenessProbe.TerminationGracePeriodSeconds < 1 {
 			return warnings, fmt.Errorf("the OpenTelemetry Spec LivenessProbe TerminationGracePeriodSeconds configuration is incorrect. TerminationGracePeriodSeconds should be greater than or equal to 1")
 		}
@@ -372,9 +391,11 @@ func checkAutoscalerSpec(autoscaler *AutoscalerSpec) error {
 			return fmt.Errorf("the OpenTelemetry Spec autoscale configuration is incorrect, scaleUp should be one or more")
 		}
 	}
+
 	if autoscaler.TargetCPUUtilization != nil && (*autoscaler.TargetCPUUtilization < int32(1) || *autoscaler.TargetCPUUtilization > int32(99)) {
 		return fmt.Errorf("the OpenTelemetry Spec autoscale configuration is incorrect, targetCPUUtilization should be greater than 0 and less than 100")
 	}
+
 	if autoscaler.TargetMemoryUtilization != nil && (*autoscaler.TargetMemoryUtilization < int32(1) || *autoscaler.TargetMemoryUtilization > int32(99)) {
 		return fmt.Errorf("the OpenTelemetry Spec autoscale configuration is incorrect, targetMemoryUtilization should be greater than 0 and less than 100")
 	}
@@ -404,22 +425,26 @@ func checkAutoscalerSpec(autoscaler *AutoscalerSpec) error {
 // warningsGroupedByResource is a helper to take the missing permissions and format them as warnings.
 func warningsGroupedByResource(reviews []*v1.SubjectAccessReview) []string {
 	fullResourceToVerbs := make(map[string][]string)
+
 	for _, review := range reviews {
 		if review.Spec.ResourceAttributes != nil {
 			key := fmt.Sprintf("%s/%s", review.Spec.ResourceAttributes.Group, review.Spec.ResourceAttributes.Resource)
 			if len(review.Spec.ResourceAttributes.Group) == 0 {
 				key = review.Spec.ResourceAttributes.Resource
 			}
+
 			fullResourceToVerbs[key] = append(fullResourceToVerbs[key], review.Spec.ResourceAttributes.Verb)
 		} else if review.Spec.NonResourceAttributes != nil {
 			key := fmt.Sprintf("nonResourceURL: %s", review.Spec.NonResourceAttributes.Path)
 			fullResourceToVerbs[key] = append(fullResourceToVerbs[key], review.Spec.NonResourceAttributes.Verb)
 		}
 	}
+
 	var warnings []string
 	for fullResource, verbs := range fullResourceToVerbs {
 		warnings = append(warnings, fmt.Sprintf("missing the following rules for %s: [%s]", fullResource, strings.Join(verbs, ",")))
 	}
+
 	return warnings
 }
 
@@ -430,6 +455,7 @@ func SetupCollectorWebhook(mgr ctrl.Manager, cfg config.Config, reviewer *rbac.R
 		scheme:   mgr.GetScheme(),
 		cfg:      cfg,
 	}
+
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(&OpenTelemetryCollector{}).
 		WithValidator(cvw).

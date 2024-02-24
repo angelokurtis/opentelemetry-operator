@@ -68,7 +68,6 @@ label_selector:
 		assert.Equal(t, "my-instance-targetallocator", actual.Name)
 		assert.Equal(t, expectedLables, actual.Labels)
 		assert.Equal(t, expectedData, actual.Data)
-
 	})
 	t.Run("should return expected target allocator config map with label selectors", func(t *testing.T) {
 		expectedLables["app.kubernetes.io/component"] = "opentelemetry-targetallocator"
@@ -114,7 +113,6 @@ service_monitor_selector:
 		assert.Equal(t, "my-instance-targetallocator", actual.Name)
 		assert.Equal(t, expectedLables, actual.Labels)
 		assert.Equal(t, expectedData, actual.Data)
-
 	})
 	t.Run("should return expected target allocator config map with scrape interval set", func(t *testing.T) {
 		expectedLables["app.kubernetes.io/component"] = "opentelemetry-targetallocator"
@@ -154,7 +152,5 @@ prometheus_cr:
 		assert.Equal(t, "my-instance-targetallocator", actual.Name)
 		assert.Equal(t, expectedLables, actual.Labels)
 		assert.Equal(t, expectedData, actual.Data)
-
 	})
-
 }

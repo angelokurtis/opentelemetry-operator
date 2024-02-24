@@ -179,6 +179,7 @@ func TestInstrumentationJaegerRemote(t *testing.T) {
 					},
 				}
 				ctx := context.Background()
+
 				if test.err == "" {
 					warnings, err := InstrumentationWebhook{}.ValidateCreate(ctx, &inst)
 					assert.Nil(t, warnings)

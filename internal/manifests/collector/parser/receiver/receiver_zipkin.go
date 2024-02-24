@@ -26,6 +26,7 @@ const parserNameZipkin = "__zipkin"
 // NewZipkinReceiverParser builds a new parser for Zipkin receivers.
 func NewZipkinReceiverParser(logger logr.Logger, name string, config map[interface{}]interface{}) parser.ComponentPortParser {
 	http := "http"
+
 	return &GenericReceiver{
 		logger:             logger,
 		name:               name,

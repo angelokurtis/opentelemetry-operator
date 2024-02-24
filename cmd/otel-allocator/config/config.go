@@ -26,16 +26,18 @@ import (
 	promconfig "github.com/prometheus/prometheus/config"
 	_ "github.com/prometheus/prometheus/discovery/install"
 	"github.com/spf13/pflag"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/klog/v2"
+	klog "k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
 const DefaultResyncTime = 5 * time.Minute
+
 const DefaultConfigFilePath string = "/conf/targetallocator.yaml"
+
 const DefaultCRScrapeInterval model.Duration = model.Duration(time.Second * 30)
 
 type Config struct {
@@ -114,7 +116,6 @@ func LoadFromCLI(target *Config, flagSet *pflag.FlagSet) error {
 }
 
 func unmarshal(cfg *Config, configFile string) error {
-
 	yamlFile, err := os.ReadFile(configFile)
 	if err != nil {
 		return err

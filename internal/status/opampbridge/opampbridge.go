@@ -27,5 +27,6 @@ func UpdateOpAMPBridgeStatus(ctx context.Context, cli client.Client, changed *v1
 	if changed.Status.Version == "" {
 		changed.Status.Version = version.OperatorOpAMPBridge()
 	}
+
 	return nil
 }

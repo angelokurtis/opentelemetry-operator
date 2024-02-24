@@ -65,6 +65,7 @@ func (w InstrumentationWebhook) Default(ctx context.Context, obj runtime.Object)
 	if !ok {
 		return fmt.Errorf("expected an Instrumentation, received %T", obj)
 	}
+
 	return w.defaulter(instrumentation)
 }
 
@@ -73,6 +74,7 @@ func (w InstrumentationWebhook) ValidateCreate(ctx context.Context, obj runtime.
 	if !ok {
 		return nil, fmt.Errorf("expected an Instrumentation, received %T", obj)
 	}
+
 	return w.validate(inst)
 }
 
@@ -81,6 +83,7 @@ func (w InstrumentationWebhook) ValidateUpdate(ctx context.Context, oldObj, newO
 	if !ok {
 		return nil, fmt.Errorf("expected an Instrumentation, received %T", newObj)
 	}
+
 	return w.validate(inst)
 }
 
@@ -89,6 +92,7 @@ func (w InstrumentationWebhook) ValidateDelete(ctx context.Context, obj runtime.
 	if !ok || inst == nil {
 		return nil, fmt.Errorf("expected an Instrumentation, received %T", obj)
 	}
+
 	return w.validate(inst)
 }
 
@@ -96,6 +100,7 @@ func (w InstrumentationWebhook) defaulter(r *Instrumentation) error {
 	if r.Labels == nil {
 		r.Labels = map[string]string{}
 	}
+
 	if r.Labels["app.kubernetes.io/managed-by"] == "" {
 		r.Labels["app.kubernetes.io/managed-by"] = "opentelemetry-operator"
 	}
@@ -103,102 +108,125 @@ func (w InstrumentationWebhook) defaulter(r *Instrumentation) error {
 	if r.Spec.Java.Image == "" {
 		r.Spec.Java.Image = w.cfg.AutoInstrumentationJavaImage()
 	}
+
 	if r.Spec.Java.Resources.Limits == nil {
 		r.Spec.Java.Resources.Limits = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("500m"),
 			corev1.ResourceMemory: resource.MustParse("64Mi"),
 		}
 	}
+
 	if r.Spec.Java.Resources.Requests == nil {
 		r.Spec.Java.Resources.Requests = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("50m"),
 			corev1.ResourceMemory: resource.MustParse("64Mi"),
 		}
 	}
+
 	if r.Spec.NodeJS.Image == "" {
 		r.Spec.NodeJS.Image = w.cfg.AutoInstrumentationNodeJSImage()
 	}
+
 	if r.Spec.NodeJS.Resources.Limits == nil {
 		r.Spec.NodeJS.Resources.Limits = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("500m"),
 			corev1.ResourceMemory: resource.MustParse("128Mi"),
 		}
 	}
+
 	if r.Spec.NodeJS.Resources.Requests == nil {
 		r.Spec.NodeJS.Resources.Requests = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("50m"),
 			corev1.ResourceMemory: resource.MustParse("128Mi"),
 		}
 	}
+
 	if r.Spec.Python.Image == "" {
 		r.Spec.Python.Image = w.cfg.AutoInstrumentationPythonImage()
 	}
+
 	if r.Spec.Python.Resources.Limits == nil {
 		r.Spec.Python.Resources.Limits = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("500m"),
 			corev1.ResourceMemory: resource.MustParse("32Mi"),
 		}
 	}
+
 	if r.Spec.Python.Resources.Requests == nil {
 		r.Spec.Python.Resources.Requests = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("50m"),
 			corev1.ResourceMemory: resource.MustParse("32Mi"),
 		}
 	}
+
 	if r.Spec.DotNet.Image == "" {
 		r.Spec.DotNet.Image = w.cfg.AutoInstrumentationDotNetImage()
 	}
+
 	if r.Spec.DotNet.Resources.Limits == nil {
 		r.Spec.DotNet.Resources.Limits = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("500m"),
 			corev1.ResourceMemory: resource.MustParse("128Mi"),
 		}
 	}
+
 	if r.Spec.DotNet.Resources.Requests == nil {
 		r.Spec.DotNet.Resources.Requests = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("50m"),
 			corev1.ResourceMemory: resource.MustParse("128Mi"),
 		}
 	}
+
 	if r.Spec.Go.Image == "" {
 		r.Spec.Go.Image = w.cfg.AutoInstrumentationGoImage()
 	}
+
 	if r.Spec.Go.Resources.Limits == nil {
 		r.Spec.Go.Resources.Limits = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("500m"),
 			corev1.ResourceMemory: resource.MustParse("32Mi"),
 		}
 	}
+
 	if r.Spec.Go.Resources.Requests == nil {
 		r.Spec.Go.Resources.Requests = corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("50m"),
 			corev1.ResourceMemory: resource.MustParse("32Mi"),
 		}
 	}
+
 	if r.Spec.ApacheHttpd.Image == "" {
 		r.Spec.ApacheHttpd.Image = w.cfg.AutoInstrumentationApacheHttpdImage()
 	}
+
 	if r.Spec.ApacheHttpd.Resources.Limits == nil {
 		r.Spec.ApacheHttpd.Resources.Limits = initContainerDefaultLimitResources
 	}
+
 	if r.Spec.ApacheHttpd.Resources.Requests == nil {
 		r.Spec.ApacheHttpd.Resources.Requests = initContainerDefaultRequestedResources
 	}
+
 	if r.Spec.ApacheHttpd.Version == "" {
 		r.Spec.ApacheHttpd.Version = "2.4"
 	}
+
 	if r.Spec.ApacheHttpd.ConfigPath == "" {
 		r.Spec.ApacheHttpd.ConfigPath = "/usr/local/apache2/conf"
 	}
+
 	if r.Spec.Nginx.Image == "" {
 		r.Spec.Nginx.Image = w.cfg.AutoInstrumentationNginxImage()
 	}
+
 	if r.Spec.Nginx.Resources.Limits == nil {
 		r.Spec.Nginx.Resources.Limits = initContainerDefaultLimitResources
 	}
+
 	if r.Spec.Nginx.Resources.Requests == nil {
 		r.Spec.Nginx.Resources.Requests = initContainerDefaultRequestedResources
 	}
+
 	if r.Spec.Nginx.ConfigFile == "" {
 		r.Spec.Nginx.ConfigFile = "/etc/nginx/nginx.conf"
 	}
@@ -206,6 +234,7 @@ func (w InstrumentationWebhook) defaulter(r *Instrumentation) error {
 	if r.Annotations == nil {
 		r.Annotations = map[string]string{}
 	}
+
 	r.Annotations[constants.AnnotationDefaultAutoInstrumentationJava] = w.cfg.AutoInstrumentationJavaImage()
 	r.Annotations[constants.AnnotationDefaultAutoInstrumentationNodeJS] = w.cfg.AutoInstrumentationNodeJSImage()
 	r.Annotations[constants.AnnotationDefaultAutoInstrumentationPython] = w.cfg.AutoInstrumentationPythonImage()
@@ -213,11 +242,13 @@ func (w InstrumentationWebhook) defaulter(r *Instrumentation) error {
 	r.Annotations[constants.AnnotationDefaultAutoInstrumentationGo] = w.cfg.AutoInstrumentationGoImage()
 	r.Annotations[constants.AnnotationDefaultAutoInstrumentationApacheHttpd] = w.cfg.AutoInstrumentationApacheHttpdImage()
 	r.Annotations[constants.AnnotationDefaultAutoInstrumentationNginx] = w.cfg.AutoInstrumentationNginxImage()
+
 	return nil
 }
 
 func (w InstrumentationWebhook) validate(r *Instrumentation) (admission.Warnings, error) {
 	var warnings []string
+
 	switch r.Spec.Sampler.Type {
 	case "":
 		warnings = append(warnings, "sampler type not set")
@@ -227,6 +258,7 @@ func (w InstrumentationWebhook) validate(r *Instrumentation) (admission.Warnings
 			if err != nil {
 				return warnings, fmt.Errorf("spec.sampler.argument is not a number: %s", r.Spec.Sampler.Argument)
 			}
+
 			if rate < 0 || rate > 1 {
 				return warnings, fmt.Errorf("spec.sampler.argument should be in rage [0..1]: %s", r.Spec.Sampler.Argument)
 			}
@@ -236,7 +268,6 @@ func (w InstrumentationWebhook) validate(r *Instrumentation) (admission.Warnings
 		// Example: `endpoint=http://localhost:14250,pollingIntervalMs=5000,initialSamplingRate=0.25`
 		if r.Spec.Sampler.Argument != "" {
 			err := validateJaegerRemoteSamplerArgument(r.Spec.Sampler.Argument)
-
 			if err != nil {
 				return warnings, fmt.Errorf("spec.sampler.argument is not a valid argument for sampler %s: %w", r.Spec.Sampler.Type, err)
 			}
@@ -250,27 +281,35 @@ func (w InstrumentationWebhook) validate(r *Instrumentation) (admission.Warnings
 	if err := w.validateEnv(r.Spec.Env); err != nil {
 		return warnings, err
 	}
+
 	if err := w.validateEnv(r.Spec.Java.Env); err != nil {
 		return warnings, err
 	}
+
 	if err := w.validateEnv(r.Spec.NodeJS.Env); err != nil {
 		return warnings, err
 	}
+
 	if err := w.validateEnv(r.Spec.Python.Env); err != nil {
 		return warnings, err
 	}
+
 	if err := w.validateEnv(r.Spec.DotNet.Env); err != nil {
 		return warnings, err
 	}
+
 	if err := w.validateEnv(r.Spec.Go.Env); err != nil {
 		return warnings, err
 	}
+
 	if err := w.validateEnv(r.Spec.ApacheHttpd.Env); err != nil {
 		return warnings, err
 	}
+
 	if err := w.validateEnv(r.Spec.Nginx.Env); err != nil {
 		return warnings, err
 	}
+
 	return warnings, nil
 }
 
@@ -280,6 +319,7 @@ func (w InstrumentationWebhook) validateEnv(envs []corev1.EnvVar) error {
 			return fmt.Errorf("env name should start with \"OTEL_\" or \"SPLUNK_\": %s", env.Name)
 		}
 	}
+
 	return nil
 }
 
@@ -306,11 +346,13 @@ func validateJaegerRemoteSamplerArgument(argument string) error {
 			if err != nil {
 				return fmt.Errorf("invalid initialSamplingRate: %s", kv[1])
 			}
+
 			if rate < 0 || rate > 1 {
 				return fmt.Errorf("initialSamplingRate should be in rage [0..1]: %s", kv[1])
 			}
 		}
 	}
+
 	return nil
 }
 
@@ -328,6 +370,7 @@ func SetupInstrumentationWebhook(mgr ctrl.Manager, cfg config.Config) error {
 		mgr.GetScheme(),
 		cfg,
 	)
+
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(&Instrumentation{}).
 		WithValidator(ivw).

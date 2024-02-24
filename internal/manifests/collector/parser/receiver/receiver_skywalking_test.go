@@ -68,6 +68,7 @@ func TestSkywalkingPortsOverridden(t *testing.T) {
 		expectedResults[port.Name] = r
 		assert.EqualValues(t, r.portNumber, port.Port)
 	}
+
 	for k, v := range expectedResults {
 		assert.True(t, v.seen, "the port %s wasn't included in the service ports", k)
 	}
@@ -103,6 +104,7 @@ func TestSkywalkingExposeDefaultPorts(t *testing.T) {
 		expectedResults[port.Name] = r
 		assert.EqualValues(t, r.portNumber, port.Port)
 	}
+
 	for k, v := range expectedResults {
 		assert.True(t, v.seen, "the port %s wasn't included in the service ports", k)
 	}

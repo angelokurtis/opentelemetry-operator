@@ -22,7 +22,7 @@ import (
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	v1 "k8s.io/api/core/v1"
@@ -58,23 +58,23 @@ const (
 	annotationVal  = "true"
 )
 
-var (
-	extraPorts = v1.ServicePort{
-		Name:       "port-web",
-		Protocol:   "TCP",
-		Port:       8080,
-		TargetPort: intstr.FromInt32(8080),
-	}
-)
+var extraPorts = v1.ServicePort{
+	Name:       "port-web",
+	Protocol:   "TCP",
+	Port:       8080,
+	TargetPort: intstr.FromInt32(8080),
+}
 
 type check func(t *testing.T, params manifests.Params)
 
-func newParamsAssertNoErr(t *testing.T, taContainerImage string, file string) manifests.Params {
+func newParamsAssertNoErr(t *testing.T, taContainerImage, file string) manifests.Params {
 	p, err := newParams(taContainerImage, file)
 	assert.NoError(t, err)
+
 	if len(taContainerImage) == 0 {
 		p.OtelCol.Spec.TargetAllocator.Enabled = false
 	}
+
 	return p
 }
 
@@ -110,6 +110,7 @@ func TestOpenTelemetryCollectorReconciler_Reconcile(t *testing.T) {
 		// an optional list of updates to supply after the initial object
 		updates []manifests.Params
 	}
+
 	type want struct {
 		// result check
 		result controllerruntime.Result
@@ -120,6 +121,7 @@ func TestOpenTelemetryCollectorReconciler_Reconcile(t *testing.T) {
 		// if an error from reconciliation is expected
 		wantErr assert.ErrorAssertionFunc
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -542,23 +544,29 @@ func TestOpenTelemetryCollectorReconciler_Reconcile(t *testing.T) {
 			firstCheck := tt.want[0]
 			// Check for this before create, otherwise it's blown away.
 			deletionTimestamp := tt.args.params.OtelCol.GetDeletionTimestamp()
+
 			createErr := k8sClient.Create(testContext, &tt.args.params.OtelCol)
 			if !firstCheck.validateErr(t, createErr) {
 				return
 			}
+
 			if deletionTimestamp != nil {
 				err := k8sClient.Delete(testContext, &tt.args.params.OtelCol, client.PropagationPolicy(metav1.DeletePropagationForeground))
 				assert.NoError(t, err)
 			}
+
 			req := k8sreconcile.Request{
 				NamespacedName: nsn,
 			}
+
 			got, reconcileErr := reconciler.Reconcile(testContext, req)
 			if !firstCheck.wantErr(t, reconcileErr) {
 				require.NoError(t, k8sClient.Delete(testContext, &tt.args.params.OtelCol))
 				return
 			}
+
 			assert.Equal(t, firstCheck.result, got)
+
 			for _, check := range firstCheck.checks {
 				check(t, tt.args.params)
 			}
@@ -574,9 +582,11 @@ func TestOpenTelemetryCollectorReconciler_Reconcile(t *testing.T) {
 				updateParam.OtelCol.SetUID(existing.UID)
 				err = k8sClient.Update(testContext, &updateParam.OtelCol)
 				assert.NoError(t, err)
+
 				if err != nil {
 					continue
 				}
+
 				req := k8sreconcile.Request{
 					NamespacedName: nsn,
 				}
@@ -586,7 +596,9 @@ func TestOpenTelemetryCollectorReconciler_Reconcile(t *testing.T) {
 				if !checkGroup.wantErr(t, err) {
 					return
 				}
+
 				assert.Equal(t, checkGroup.result, got)
+
 				for _, check := range checkGroup.checks {
 					check(t, updateParam)
 				}
@@ -615,6 +627,7 @@ func TestOpAMPBridgeReconciler_Reconcile(t *testing.T) {
 		// an optional list of updates to supply after the initial object
 		updates []manifests.Params
 	}
+
 	type want struct {
 		// result check
 		result controllerruntime.Result
@@ -625,6 +638,7 @@ func TestOpAMPBridgeReconciler_Reconcile(t *testing.T) {
 		// if an error from reconciliation is expected
 		wantErr assert.ErrorAssertionFunc
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -699,21 +713,27 @@ func TestOpAMPBridgeReconciler_Reconcile(t *testing.T) {
 					config.WithOperatorOpAMPBridgeImage("default-opamp-bridge"),
 				),
 			})
+
 			assert.True(t, len(tt.want) > 0, "must have at least one group of checks to run")
 			firstCheck := tt.want[0]
 			createErr := k8sClient.Create(testContext, &tt.args.params.OpAMPBridge)
+
 			if !firstCheck.validateErr(t, createErr) {
 				return
 			}
+
 			req := k8sreconcile.Request{
 				NamespacedName: nsn,
 			}
+
 			got, reconcileErr := reconciler.Reconcile(testContext, req)
 			if !firstCheck.wantErr(t, reconcileErr) {
 				require.NoError(t, k8sClient.Delete(testContext, &tt.args.params.OpAMPBridge))
 				return
 			}
+
 			assert.Equal(t, firstCheck.result, got)
+
 			for _, check := range firstCheck.checks {
 				check(t, tt.args.params)
 			}
@@ -729,9 +749,11 @@ func TestOpAMPBridgeReconciler_Reconcile(t *testing.T) {
 				updateParam.OpAMPBridge.SetUID(existing.UID)
 				err = k8sClient.Update(testContext, &updateParam.OpAMPBridge)
 				assert.NoError(t, err)
+
 				if err != nil {
 					continue
 				}
+
 				req := k8sreconcile.Request{
 					NamespacedName: nsn,
 				}
@@ -741,7 +763,9 @@ func TestOpAMPBridgeReconciler_Reconcile(t *testing.T) {
 				if !checkGroup.wantErr(t, err) {
 					return
 				}
+
 				assert.Equal(t, checkGroup.result, got)
+
 				for _, check := range checkGroup.checks {
 					check(t, updateParam)
 				}
@@ -791,7 +815,7 @@ func TestRegisterWithManager(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func namespacedObjectName(name string, namespace string) types.NamespacedName {
+func namespacedObjectName(name, namespace string) types.NamespacedName {
 	return types.NamespacedName{
 		Namespace: namespace,
 		Name:      name,

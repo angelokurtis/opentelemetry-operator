@@ -33,6 +33,7 @@ func TestPDB(t *testing.T) {
 		MinAvailable   *intstr.IntOrString
 		MaxUnavailable *intstr.IntOrString
 	}
+
 	tests := []test{
 		{
 			name: "MinAvailable-int",

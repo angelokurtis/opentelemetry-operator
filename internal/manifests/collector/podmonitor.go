@@ -35,8 +35,10 @@ func PodMonitor(params manifests.Params) (*monitoringv1.PodMonitor, error) {
 			"params.OtelCol.name", params.OtelCol.Name,
 			"params.OtelCol.namespace", params.OtelCol.Namespace,
 		)
+
 		return nil, nil
 	}
+
 	var pm monitoringv1.PodMonitor
 
 	if params.OtelCol.Spec.Mode != v1alpha1.ModeSidecar {
@@ -83,12 +85,15 @@ func metricsEndpointsFromConfig(logger logr.Logger, otelcol v1alpha1.OpenTelemet
 		logger.V(2).Error(err, "Error while parsing the configuration")
 		return []monitoringv1.PodMetricsEndpoint{}
 	}
+
 	exporterPorts, err := adapters.ConfigToComponentPorts(logger, adapters.ComponentTypeExporter, config)
 	if err != nil {
 		logger.Error(err, "couldn't build endpoints to podMonitors from configuration")
 		return []monitoringv1.PodMetricsEndpoint{}
 	}
+
 	metricsEndpoints := []monitoringv1.PodMetricsEndpoint{}
+
 	for _, port := range exporterPorts {
 		if strings.Contains(port.Name, "prometheus") {
 			e := monitoringv1.PodMetricsEndpoint{
@@ -97,5 +102,6 @@ func metricsEndpointsFromConfig(logger logr.Logger, otelcol v1alpha1.OpenTelemet
 			metricsEndpoints = append(metricsEndpoints, e)
 		}
 	}
+
 	return metricsEndpoints
 }

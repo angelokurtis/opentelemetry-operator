@@ -25,5 +25,6 @@ func getDNSPolicy(otelcol v1alpha1.OpenTelemetryCollector) corev1.DNSPolicy {
 	if otelcol.Spec.HostNetwork {
 		dnsPolicy = corev1.DNSClusterFirstWithHostNet
 	}
+
 	return dnsPolicy
 }

@@ -18,12 +18,11 @@ import (
 	"fmt"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 	"github.com/open-telemetry/opentelemetry-operator/internal/manifests/collector/adapters"
-
-	corev1 "k8s.io/api/core/v1"
 )
 
 func upgrade0_19_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (*v1alpha1.OpenTelemetryCollector, error) {
@@ -44,13 +43,14 @@ func upgrade0_19_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 
 	for k, v := range processors {
 		// from the changelog https://github.com/open-telemetry/opentelemetry-collector/releases/tag/v0.19.0
-
 		// Remove deprecated queued_retry processor
 		if strings.HasPrefix(k.(string), "queued_retry") {
 			delete(processors, k)
+
 			existing := &corev1.ConfigMap{}
 			updated := existing.DeepCopy()
 			u.Recorder.Event(updated, "Normal", "Upgrade", fmt.Sprintf("upgrade to v0.19.0 removed the processor %q", k))
+
 			continue
 		}
 
@@ -61,11 +61,13 @@ func upgrade0_19_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 				// type becomes an attribute.upsert with key opencensus.type
 				if typ, found := processor["type"]; found {
 					var attributes []map[string]string
+
 					if attrs, found := processor["attributes"]; found {
 						if attributes, ok = attrs.([]map[string]string); !ok {
 							return otelcol, fmt.Errorf("couldn't upgrade to v0.19.0, the attributes list for processors %q couldn't be parsed based on the previous value. Type: %t, value: %v", k, attrs, attrs)
 						}
 					}
+
 					attr := map[string]string{}
 					attr["key"] = "opencensus.type"
 					attr["value"] = typ.(string)
@@ -74,6 +76,7 @@ func upgrade0_19_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 
 					processor["attributes"] = attributes
 					delete(processor, "type")
+
 					existing := &corev1.ConfigMap{}
 					updated := existing.DeepCopy()
 					u.Recorder.Event(updated, "Normal", "Upgrade", fmt.Sprintf("upgrade to v0.19.0 migrated the property 'type' for processor %q", k))
@@ -82,6 +85,7 @@ func upgrade0_19_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 				// handle labels
 				if labels, found := processor["labels"]; found {
 					var attributes []map[string]string
+
 					if attrs, found := processor["attributes"]; found {
 						if attributes, ok = attrs.([]map[string]string); !ok {
 							return otelcol, fmt.Errorf("couldn't upgrade to v0.19.0, the attributes list for processors %q couldn't be parsed based on the previous value. Type: %t, value: %v", k, attrs, attrs)
@@ -100,6 +104,7 @@ func upgrade0_19_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 
 					processor["attributes"] = attributes
 					delete(processor, "labels")
+
 					existing := &corev1.ConfigMap{}
 					updated := existing.DeepCopy()
 					u.Recorder.Event(updated, "Normal", "Upgrade", fmt.Sprintf("upgrade to v0.19.0 migrated the property 'labels' for processor %q", k))
@@ -118,11 +123,13 @@ func upgrade0_19_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 	}
 
 	cfg["processors"] = processors
+
 	res, err := yaml.Marshal(cfg)
 	if err != nil {
 		return otelcol, fmt.Errorf("couldn't upgrade to v0.19.0, failed to marshall back configuration: %w", err)
 	}
 
 	otelcol.Spec.Config = string(res)
+
 	return otelcol, nil
 }

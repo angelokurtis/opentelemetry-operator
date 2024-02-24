@@ -40,6 +40,7 @@ import (
 )
 
 var opampBridgeLogger = logf.Log.WithName("opamp-bridge-controller-unit-tests")
+
 var opampBridgeMockAutoDetector = &mockAutoDetect{
 	OpenShiftRoutesAvailabilityFunc: func() (openshift.RoutesAvailability, error) {
 		return openshift.RoutesAvailable, nil
@@ -60,7 +61,9 @@ func TestNewObjectsOnReconciliation_OpAMPBridge(t *testing.T) {
 		Recorder: record.NewFakeRecorder(10),
 		Config:   cfg,
 	})
+
 	require.NoError(t, cfg.AutoDetect())
+
 	created := &v1alpha1.OpAMPBridge{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      nsn.Name,

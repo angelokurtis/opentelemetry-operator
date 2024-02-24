@@ -68,6 +68,7 @@ var testAffinityValue = &v1.Affinity{
 }
 
 var runAsUser int64 = 1000
+
 var runAsGroup int64 = 1000
 
 var testSecurityContextValue = &v1.PodSecurityContext{
@@ -90,10 +91,12 @@ func TestDeploymentSecurityContext(t *testing.T) {
 		Config:  cfg,
 		Log:     logger,
 	}
+
 	d1, err := Deployment(params1)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	assert.Empty(t, d1.Spec.Template.Spec.SecurityContext)
 
 	// Test SecurityContext
@@ -120,6 +123,7 @@ func TestDeploymentSecurityContext(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	assert.Equal(t, *testSecurityContextValue, *d2.Spec.Template.Spec.SecurityContext)
 }
 
@@ -179,6 +183,7 @@ func collectorInstance() v1alpha1.OpenTelemetryCollector {
 	if err != nil {
 		fmt.Printf("Error getting yaml file: %v", err)
 	}
+
 	return v1alpha1.OpenTelemetryCollector{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "my-instance",
@@ -239,6 +244,7 @@ func TestDeploymentNodeSelector(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, map[string]string{"node-key": "node-value"}, d2.Spec.Template.Spec.NodeSelector)
 }
+
 func TestDeploymentAffinity(t *testing.T) {
 	// Test default
 	otelcol1 := v1alpha1.OpenTelemetryCollector{

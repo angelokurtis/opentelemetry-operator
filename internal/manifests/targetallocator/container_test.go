@@ -319,6 +319,7 @@ func TestContainerDoesNotOverrideEnvVars(t *testing.T) {
 	// verify
 	assert.Equal(t, expected, c)
 }
+
 func TestReadinessProbe(t *testing.T) {
 	otelcol := v1alpha1.OpenTelemetryCollector{
 		Spec: v1alpha1.OpenTelemetryCollectorSpec{
@@ -343,6 +344,7 @@ func TestReadinessProbe(t *testing.T) {
 	// verify
 	assert.Equal(t, expected, c.ReadinessProbe)
 }
+
 func TestLivenessProbe(t *testing.T) {
 	// prepare
 	otelcol := v1alpha1.OpenTelemetryCollector{

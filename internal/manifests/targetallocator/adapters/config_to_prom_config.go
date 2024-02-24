@@ -223,6 +223,7 @@ func AddHTTPSDConfigToPromConfig(prometheus map[interface{}]interface{}, taServi
 			if !keyErr {
 				continue
 			}
+
 			if sdRegex.MatchString(keyStr) {
 				delete(scrapeConfig, key)
 			}
@@ -284,13 +285,14 @@ func AddTAConfigToPromConfig(prometheus map[interface{}]interface{}, taServiceNa
 }
 
 // ValidatePromConfig checks if the prometheus receiver config is valid given other collector-level settings.
-func ValidatePromConfig(config map[interface{}]interface{}, targetAllocatorEnabled bool, targetAllocatorRewriteEnabled bool) error {
+func ValidatePromConfig(config map[interface{}]interface{}, targetAllocatorEnabled, targetAllocatorRewriteEnabled bool) error {
 	_, promConfigExists := config["config"]
 
 	if targetAllocatorEnabled {
 		if targetAllocatorRewriteEnabled { // if rewrite is enabled, we will add a target_allocator section during rewrite
 			return nil
 		}
+
 		_, targetAllocatorExists := config["target_allocator"]
 
 		// otherwise, either the target_allocator or config section needs to be here
@@ -313,7 +315,6 @@ func ValidatePromConfig(config map[interface{}]interface{}, targetAllocatorEnabl
 //   - at least one scrape config has to be defined in Prometheus receiver configuration
 //   - PrometheusCR has to be enabled in target allocator settings
 func ValidateTargetAllocatorConfig(targetAllocatorPrometheusCR bool, promReceiverConfig map[interface{}]interface{}) error {
-
 	if targetAllocatorPrometheusCR {
 		return nil
 	}

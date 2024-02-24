@@ -43,40 +43,51 @@ func NewReviewer(c kubernetes.Interface) *Reviewer {
 // returns the reviews that were denied.
 func AllSubjectAccessReviewsAllowed(subjectAccessReviews []*v1.SubjectAccessReview) (bool, []*v1.SubjectAccessReview) {
 	allowed := true
+
 	var deniedReviews []*v1.SubjectAccessReview
+
 	for _, review := range subjectAccessReviews {
 		if review.Status.Denied {
 			allowed = false
+
 			deniedReviews = append(deniedReviews, review)
 		} else if !review.Status.Allowed {
 			allowed = false
+
 			deniedReviews = append(deniedReviews, review)
 		}
 	}
+
 	return allowed, deniedReviews
 }
 
 // CheckPolicyRules is a convenience function that lets the caller check access for a set of PolicyRules.
 func (r *Reviewer) CheckPolicyRules(ctx context.Context, serviceAccount, serviceAccountNamespace string, rules ...*rbacv1.PolicyRule) ([]*v1.SubjectAccessReview, error) {
 	var subjectAccessReviews []*v1.SubjectAccessReview
+
 	var errs []error
+
 	for _, rule := range rules {
 		if rule == nil {
 			continue
 		}
+
 		resourceAttributes := policyRuleToResourceAttributes(rule)
 		nonResourceAttributes := policyRuleToNonResourceAttributes(rule)
+
 		for _, res := range resourceAttributes {
 			sar, err := r.CanAccess(ctx, serviceAccount, serviceAccountNamespace, res, nil)
 			subjectAccessReviews = append(subjectAccessReviews, sar)
 			errs = append(errs, err)
 		}
+
 		for _, nonResourceAttribute := range nonResourceAttributes {
 			sar, err := r.CanAccess(ctx, serviceAccount, serviceAccountNamespace, nil, nonResourceAttribute)
 			subjectAccessReviews = append(subjectAccessReviews, sar)
 			errs = append(errs, err)
 		}
 	}
+
 	return subjectAccessReviews, errors.Join(errs...)
 }
 
@@ -91,6 +102,7 @@ func (r *Reviewer) CanAccess(ctx context.Context, serviceAccount, serviceAccount
 			User:                  fmt.Sprintf(serviceAccountFmtStr, serviceAccountNamespace, serviceAccount),
 		},
 	}
+
 	return r.client.AuthorizationV1().SubjectAccessReviews().Create(ctx, sar, metav1.CreateOptions{})
 }
 
@@ -99,6 +111,7 @@ func (r *Reviewer) CanAccess(ctx context.Context, serviceAccount, serviceAccount
 // requires us to iterate over each list and flatten.
 func policyRuleToResourceAttributes(rule *rbacv1.PolicyRule) []*v1.ResourceAttributes {
 	var resourceAttributes []*v1.ResourceAttributes
+
 	for _, verb := range rule.Verbs {
 		for _, group := range rule.APIGroups {
 			for _, resource := range rule.Resources {
@@ -111,6 +124,7 @@ func policyRuleToResourceAttributes(rule *rbacv1.PolicyRule) []*v1.ResourceAttri
 			}
 		}
 	}
+
 	return resourceAttributes
 }
 
@@ -119,6 +133,7 @@ func policyRuleToResourceAttributes(rule *rbacv1.PolicyRule) []*v1.ResourceAttri
 // requires us to iterate over each list and flatten.
 func policyRuleToNonResourceAttributes(rule *rbacv1.PolicyRule) []*v1.NonResourceAttributes {
 	var nonResourceAttributes []*v1.NonResourceAttributes
+
 	for _, verb := range rule.Verbs {
 		for _, nonResourceUrl := range rule.NonResourceURLs {
 			nonResourceAttribute := &v1.NonResourceAttributes{
@@ -128,5 +143,6 @@ func policyRuleToNonResourceAttributes(rule *rbacv1.PolicyRule) []*v1.NonResourc
 			nonResourceAttributes = append(nonResourceAttributes, nonResourceAttribute)
 		}
 	}
+
 	return nonResourceAttributes
 }

@@ -34,6 +34,7 @@ func init() {
 // source: https://github.com/jaegertracing/jaeger-operator/blob/91e3b69ee5c8761bbda9d3cf431400a73fc1112a/pkg/util/truncate.go#L17
 func Truncate(format string, max int, values ...interface{}) string {
 	var truncated []interface{}
+
 	result := fmt.Sprintf(format, values...)
 	if excess := len(result) - max; excess > 0 {
 		// we try to reduce the first string we find
@@ -55,6 +56,7 @@ func Truncate(format string, max int, values ...interface{}) string {
 
 			truncated = append(truncated, value)
 		}
+
 		result = fmt.Sprintf(format, truncated...)
 	}
 

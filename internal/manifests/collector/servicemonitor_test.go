@@ -38,6 +38,7 @@ func TestDesiredServiceMonitors(t *testing.T) {
 
 	params, err = newParams("", "testdata/prometheus-exporter.yaml")
 	assert.NoError(t, err)
+
 	params.OtelCol.Spec.Observability.Metrics.EnableMetrics = true
 	actual, err = ServiceMonitor(params)
 	assert.NoError(t, err)

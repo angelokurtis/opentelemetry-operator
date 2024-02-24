@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	colfeaturegate "go.opentelemetry.io/collector/featuregate"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 
 	ta "github.com/open-telemetry/opentelemetry-operator/internal/manifests/targetallocator/adapters"
 	"github.com/open-telemetry/opentelemetry-operator/pkg/featuregate"
@@ -38,11 +38,13 @@ func TestPrometheusParser(t *testing.T) {
 		t.Cleanup(func() {
 			_ = colfeaturegate.GlobalRegistry().Set(featuregate.EnableTargetAllocatorRewrite.ID(), true)
 		})
+
 		actualConfig, err := ReplaceConfig(param.OtelCol)
 		assert.NoError(t, err)
 
 		// prepare
 		var cfg Config
+
 		promCfgMap, err := ta.ConfigToPromConfig(actualConfig)
 		assert.NoError(t, err)
 
@@ -57,15 +59,19 @@ func TestPrometheusParser(t *testing.T) {
 			"prometheus": false,
 			"service-x":  false,
 		}
+
 		for _, scrapeConfig := range cfg.PromConfig.ScrapeConfigs {
 			assert.Len(t, scrapeConfig.ServiceDiscoveryConfigs, 1)
 			assert.Equal(t, scrapeConfig.ServiceDiscoveryConfigs[0].Name(), "http")
 			assert.Equal(t, scrapeConfig.ServiceDiscoveryConfigs[0].(*http.SDConfig).URL, "http://test-targetallocator:80/jobs/"+scrapeConfig.JobName+"/targets?collector_id=$POD_NAME")
+
 			expectedMap[scrapeConfig.JobName] = true
 		}
+
 		for k := range expectedMap {
 			assert.True(t, expectedMap[k], k)
 		}
+
 		assert.True(t, cfg.TargetAllocConfig == nil)
 	})
 
@@ -96,6 +102,7 @@ func TestPrometheusParser(t *testing.T) {
 		// Set up the test scenario
 		paramTa, err := newParams("test/test-img", "testdata/http_sd_config_ta_test.yaml")
 		require.NoError(t, err)
+
 		paramTa.OtelCol.Spec.TargetAllocator.Enabled = true
 
 		actualConfig, err := ReplaceConfig(paramTa.OtelCol)
@@ -125,6 +132,7 @@ func TestPrometheusParser(t *testing.T) {
 
 		// prepare
 		var cfg Config
+
 		promCfgMap, err := ta.ConfigToPromConfig(actualConfig)
 		assert.NoError(t, err)
 
@@ -139,18 +147,21 @@ func TestPrometheusParser(t *testing.T) {
 			"prometheus": false,
 			"service-x":  false,
 		}
+
 		for _, scrapeConfig := range cfg.PromConfig.ScrapeConfigs {
 			assert.Len(t, scrapeConfig.ServiceDiscoveryConfigs, 2)
 			assert.Equal(t, scrapeConfig.ServiceDiscoveryConfigs[0].Name(), "file")
 			assert.Equal(t, scrapeConfig.ServiceDiscoveryConfigs[1].Name(), "static")
+
 			expectedMap[scrapeConfig.JobName] = true
 		}
+
 		for k := range expectedMap {
 			assert.True(t, expectedMap[k], k)
 		}
+
 		assert.True(t, cfg.TargetAllocConfig == nil)
 	})
-
 }
 
 func TestReplaceConfig(t *testing.T) {
@@ -161,6 +172,7 @@ func TestReplaceConfig(t *testing.T) {
 		param.OtelCol.Spec.TargetAllocator.Enabled = false
 		expectedConfigBytes, err := os.ReadFile("testdata/relabel_config_original.yaml")
 		assert.NoError(t, err)
+
 		expectedConfig := string(expectedConfigBytes)
 
 		actualConfig, err := ReplaceConfig(param.OtelCol)
@@ -180,6 +192,7 @@ func TestReplaceConfig(t *testing.T) {
 
 		expectedConfigBytes, err := os.ReadFile("testdata/relabel_config_expected_with_sd_config.yaml")
 		assert.NoError(t, err)
+
 		expectedConfig := string(expectedConfigBytes)
 
 		actualConfig, err := ReplaceConfig(param.OtelCol)
@@ -193,6 +206,7 @@ func TestReplaceConfig(t *testing.T) {
 
 		expectedConfigBytes, err := os.ReadFile("testdata/config_expected_targetallocator.yaml")
 		assert.NoError(t, err)
+
 		expectedConfig := string(expectedConfigBytes)
 
 		actualConfig, err := ReplaceConfig(param.OtelCol)

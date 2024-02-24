@@ -33,9 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-var (
-	ImmutableChangeErr = errors.New("immutable field change attempted")
-)
+var ImmutableChangeErr = errors.New("immutable field change attempted")
 
 // MutateFuncFor returns a mutate function based on the
 // existing resource's concrete type. It supports currently
@@ -66,6 +64,7 @@ func MutateFuncFor(existing, desired client.Object) controllerutil.MutateFn {
 		if err := mergeWithOverride(&existingAnnotations, desired.GetAnnotations()); err != nil {
 			return err
 		}
+
 		existing.SetAnnotations(existingAnnotations)
 
 		// Get the existing labels and override any conflicts with the desired labels
@@ -74,6 +73,7 @@ func MutateFuncFor(existing, desired client.Object) controllerutil.MutateFn {
 		if err := mergeWithOverride(&existingLabels, desired.GetLabels()); err != nil {
 			return err
 		}
+
 		existing.SetLabels(existingLabels)
 
 		if ownerRefs := desired.GetOwnerReferences(); len(ownerRefs) > 0 {
@@ -89,6 +89,7 @@ func MutateFuncFor(existing, desired client.Object) controllerutil.MutateFn {
 		case *corev1.Service:
 			svc := existing.(*corev1.Service)
 			wantSvc := desired.(*corev1.Service)
+
 			return mutateService(svc, wantSvc)
 
 		case *corev1.ServiceAccount:
@@ -119,16 +120,19 @@ func MutateFuncFor(existing, desired client.Object) controllerutil.MutateFn {
 		case *appsv1.Deployment:
 			dpl := existing.(*appsv1.Deployment)
 			wantDpl := desired.(*appsv1.Deployment)
+
 			return mutateDeployment(dpl, wantDpl)
 
 		case *appsv1.DaemonSet:
 			dpl := existing.(*appsv1.DaemonSet)
 			wantDpl := desired.(*appsv1.DaemonSet)
+
 			return mutateDaemonset(dpl, wantDpl)
 
 		case *appsv1.StatefulSet:
 			sts := existing.(*appsv1.StatefulSet)
 			wantSts := desired.(*appsv1.StatefulSet)
+
 			return mutateStatefulSet(sts, wantSts)
 
 		case *monitoringv1.ServiceMonitor:
@@ -170,6 +174,7 @@ func MutateFuncFor(existing, desired client.Object) controllerutil.MutateFn {
 			t := reflect.TypeOf(existing).String()
 			return fmt.Errorf("missing mutate implementation for resource type: %s", t)
 		}
+
 		return nil
 	}
 }
@@ -261,6 +266,7 @@ func mutateService(existing, desired *corev1.Service) error {
 	if err := mergeWithOverride(&existing.Spec.Selector, desired.Spec.Selector); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -277,6 +283,7 @@ func mutateDaemonset(existing, desired *appsv1.DaemonSet) error {
 	if err := mergeWithOverride(&existing.Spec, desired.Spec); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -289,13 +296,16 @@ func mutateDeployment(existing, desired *appsv1.Deployment) error {
 	if existing.CreationTimestamp.IsZero() {
 		existing.Spec.Selector = desired.Spec.Selector
 	}
+
 	existing.Spec.Replicas = desired.Spec.Replicas
 	if err := mergeWithOverride(&existing.Spec.Template, desired.Spec.Template); err != nil {
 		return err
 	}
+
 	if err := mergeWithOverride(&existing.Spec.Strategy, desired.Spec.Strategy); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -308,6 +318,7 @@ func mutateStatefulSet(existing, desired *appsv1.StatefulSet) error {
 	if existing.CreationTimestamp.IsZero() {
 		existing.Spec.Selector = desired.Spec.Selector
 	}
+
 	existing.Spec.PodManagementPolicy = desired.Spec.PodManagementPolicy
 	existing.Spec.Replicas = desired.Spec.Replicas
 
@@ -316,9 +327,11 @@ func mutateStatefulSet(existing, desired *appsv1.StatefulSet) error {
 		existing.Spec.VolumeClaimTemplates[i].ObjectMeta = desired.Spec.VolumeClaimTemplates[i].ObjectMeta
 		existing.Spec.VolumeClaimTemplates[i].Spec = desired.Spec.VolumeClaimTemplates[i].Spec
 	}
+
 	if err := mergeWithOverride(&existing.Spec.Template, desired.Spec.Template); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -326,6 +339,7 @@ func hasImmutableFieldChange(existing, desired *appsv1.StatefulSet) (bool, strin
 	if existing.CreationTimestamp.IsZero() {
 		return false, ""
 	}
+
 	if !apiequality.Semantic.DeepEqual(desired.Spec.Selector, existing.Spec.Selector) {
 		return true, fmt.Sprintf("Spec.Selector: desired: %s existing: %s", desired.Spec.Selector, existing.Spec.Selector)
 	}
@@ -354,9 +368,11 @@ func hasVolumeClaimsTemplatesChanged(existing, desired *appsv1.StatefulSet) bool
 		if desired.Spec.VolumeClaimTemplates[i].Name != existing.Spec.VolumeClaimTemplates[i].Name {
 			return true
 		}
+
 		if !apiequality.Semantic.DeepEqual(desired.Spec.VolumeClaimTemplates[i].Annotations, existing.Spec.VolumeClaimTemplates[i].Annotations) {
 			return true
 		}
+
 		if !apiequality.Semantic.DeepEqual(desired.Spec.VolumeClaimTemplates[i].Spec, existing.Spec.VolumeClaimTemplates[i].Spec) {
 			return true
 		}

@@ -141,5 +141,4 @@ service:
 		"--test-upgrade43": "true",
 		"--test-arg1":      "otel",
 	}, res.Spec.Args)
-
 }

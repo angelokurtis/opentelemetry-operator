@@ -20,24 +20,26 @@ import "fmt"
 // getEnabledComponents returns all enabled components as a true flag set. If it can't find any receiver, it will return a nil interface.
 func getEnabledComponents(config map[interface{}]interface{}, componentType ComponentType) map[interface{}]bool {
 	componentTypePlural := fmt.Sprintf("%ss", componentType)
+
 	cfgComponents, ok := config[componentTypePlural]
 	if !ok {
 		return nil
 	}
+
 	components, ok := cfgComponents.(map[interface{}]interface{})
 	if !ok {
 		return nil
 	}
+
 	availableComponents := map[interface{}]bool{}
 
 	for compID := range components {
-
-		//Safe Cast
+		// Safe Cast
 		componentID, withComponent := compID.(string)
 		if !withComponent {
 			return nil
 		}
-		//Getting all components present in the components (exporters,receivers...) section and setting them to false.
+		// Getting all components present in the components (exporters,receivers...) section and setting them to false.
 		availableComponents[componentID] = false
 	}
 
@@ -50,31 +52,33 @@ func getEnabledComponents(config map[interface{}]interface{}, componentType Comp
 	if !withPipeline {
 		return nil
 	}
+
 	availablePipelines := map[string]bool{}
 
 	for pipID := range pipeline {
-		//Safe Cast
+		// Safe Cast
 		pipelineID, existsPipeline := pipID.(string)
 		if !existsPipeline {
 			return nil
 		}
-		//Getting all the available pipelines.
+		// Getting all the available pipelines.
 		availablePipelines[pipelineID] = true
 	}
 
 	if len(pipeline) > 0 {
 		for pipelineID, pipelineCfg := range pipeline {
-			//Safe Cast
+			// Safe Cast
 			pipelineV, withPipelineCfg := pipelineID.(string)
 			if !withPipelineCfg {
 				continue
 			}
-			//Condition will get information if there are multiple configured pipelines.
+			// Condition will get information if there are multiple configured pipelines.
 			if len(pipelineV) > 0 {
 				pipelineDesc, ok := pipelineCfg.(map[interface{}]interface{})
 				if !ok {
 					return nil
 				}
+
 				for pipSpecID, pipSpecCfg := range pipelineDesc {
 					if pipSpecID.(string) == componentTypePlural {
 						receiversList, ok := pipSpecCfg.([]interface{})
@@ -87,15 +91,16 @@ func getEnabledComponents(config map[interface{}]interface{}, componentType Comp
 						} else {
 							// All enabled receivers will be set as true
 							for _, comKey := range receiversList {
-								//Safe Cast
+								// Safe Cast
 								receiverKey, ok := comKey.(string)
 								if !ok {
 									return nil
 								}
+
 								availableComponents[receiverKey] = true
 							}
 						}
-						//Removing all non-enabled receivers
+						// Removing all non-enabled receivers
 						for comID, comKey := range availableComponents {
 							if !(comKey) {
 								delete(availableComponents, comID)
@@ -106,5 +111,6 @@ func getEnabledComponents(config map[interface{}]interface{}, componentType Comp
 			}
 		}
 	}
+
 	return availableComponents
 }

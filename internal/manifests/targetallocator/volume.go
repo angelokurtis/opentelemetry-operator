@@ -33,7 +33,8 @@ func Volumes(cfg config.Config, otelcol v1alpha1.OpenTelemetryCollector) []corev
 					{
 						Key:  cfg.TargetAllocatorConfigMapEntry(),
 						Path: cfg.TargetAllocatorConfigMapEntry(),
-					}},
+					},
+				},
 			},
 		},
 	}}

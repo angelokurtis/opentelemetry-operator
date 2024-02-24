@@ -23,7 +23,7 @@ import (
 )
 
 func BenchmarkGetAllTargetsByCollectorAndJob(b *testing.B) {
-	var table = []struct {
+	table := []struct {
 		numCollectors int
 		numJobs       int
 	}{
@@ -58,7 +58,7 @@ func BenchmarkGetAllTargetsByCollectorAndJob(b *testing.B) {
 }
 
 func Benchmark_Setting(b *testing.B) {
-	var table = []struct {
+	table := []struct {
 		numCollectors int
 		numTargets    int
 	}{

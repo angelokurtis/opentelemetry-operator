@@ -17,11 +17,11 @@ package allocation
 import (
 	"sync"
 
-	"github.com/open-telemetry/opentelemetry-operator/cmd/otel-allocator/diff"
-	"github.com/open-telemetry/opentelemetry-operator/cmd/otel-allocator/target"
-
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/open-telemetry/opentelemetry-operator/cmd/otel-allocator/diff"
+	"github.com/open-telemetry/opentelemetry-operator/cmd/otel-allocator/target"
 )
 
 var _ Allocator = &leastWeightedAllocator{}
@@ -60,7 +60,7 @@ func (allocator *leastWeightedAllocator) SetFilter(filter Filter) {
 	allocator.filter = filter
 }
 
-func (allocator *leastWeightedAllocator) GetTargetsForCollectorAndJob(collector string, job string) []*target.Item {
+func (allocator *leastWeightedAllocator) GetTargetsForCollectorAndJob(collector, job string) []*target.Item {
 	allocator.m.RLock()
 	defer allocator.m.RUnlock()
 	if _, ok := allocator.targetItemsPerJobPerCollector[collector]; !ok {

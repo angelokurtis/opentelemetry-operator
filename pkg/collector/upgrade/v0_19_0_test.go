@@ -149,6 +149,7 @@ func TestMigrateLabels(t *testing.T) {
 
 	actual, err := adapters.ConfigFromString(res.Spec.Config)
 	require.NoError(t, err)
+
 	actualProcessors := actual["processors"].(map[interface{}]interface{})
 	actualProcessor := actualProcessors["resource"].(map[interface{}]interface{})
 	actualAttrs := actualProcessor["attributes"].([]interface{})

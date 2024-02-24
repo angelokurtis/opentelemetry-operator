@@ -35,10 +35,12 @@ func UpdateCollectorStatus(ctx context.Context, cli client.Client, changed *v1al
 		// a version is not set, otherwise let the upgrade mechanism take care of it!
 		changed.Status.Version = version.OpenTelemetryCollector()
 	}
+
 	mode := changed.Spec.Mode
 	if mode != v1alpha1.ModeDeployment && mode != v1alpha1.ModeStatefulSet {
 		changed.Status.Scale.Replicas = 0
 		changed.Status.Scale.Selector = ""
+
 		return nil
 	}
 
@@ -46,10 +48,12 @@ func UpdateCollectorStatus(ctx context.Context, cli client.Client, changed *v1al
 
 	// Set the scale selector
 	labels := manifestutils.Labels(changed.ObjectMeta, name, changed.Spec.Image, collector.ComponentOpenTelemetryCollector, []string{})
+
 	selector, err := metav1.LabelSelectorAsSelector(&metav1.LabelSelector{MatchLabels: labels})
 	if err != nil {
 		return fmt.Errorf("failed to get selector for labelSelector: %w", err)
 	}
+
 	changed.Status.Scale.Selector = selector.String()
 
 	// Set the scale replicas
@@ -59,8 +63,11 @@ func UpdateCollectorStatus(ctx context.Context, cli client.Client, changed *v1al
 	}
 
 	var replicas int32
+
 	var readyReplicas int32
+
 	var statusReplicas string
+
 	var statusImage string
 
 	switch mode { // nolint:exhaustive
@@ -69,6 +76,7 @@ func UpdateCollectorStatus(ctx context.Context, cli client.Client, changed *v1al
 		if err := cli.Get(ctx, objKey, obj); err != nil {
 			return fmt.Errorf("failed to get deployment status.replicas: %w", err)
 		}
+
 		replicas = obj.Status.Replicas
 		readyReplicas = obj.Status.ReadyReplicas
 		statusReplicas = strconv.Itoa(int(readyReplicas)) + "/" + strconv.Itoa(int(replicas))
@@ -79,6 +87,7 @@ func UpdateCollectorStatus(ctx context.Context, cli client.Client, changed *v1al
 		if err := cli.Get(ctx, objKey, obj); err != nil {
 			return fmt.Errorf("failed to get statefulSet status.replicas: %w", err)
 		}
+
 		replicas = obj.Status.Replicas
 		readyReplicas = obj.Status.ReadyReplicas
 		statusReplicas = strconv.Itoa(int(readyReplicas)) + "/" + strconv.Itoa(int(replicas))
@@ -89,8 +98,10 @@ func UpdateCollectorStatus(ctx context.Context, cli client.Client, changed *v1al
 		if err := cli.Get(ctx, objKey, obj); err != nil {
 			return fmt.Errorf("failed to get daemonSet status.replicas: %w", err)
 		}
+
 		statusImage = obj.Spec.Template.Spec.Containers[0].Image
 	}
+
 	changed.Status.Scale.Replicas = replicas
 	changed.Status.Image = statusImage
 	changed.Status.Scale.StatusReplicas = statusReplicas

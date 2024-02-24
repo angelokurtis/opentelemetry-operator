@@ -29,9 +29,13 @@ import (
 )
 
 var k8sClient client.Client
+
 var testEnv *envtest.Environment
+
 var testScheme = scheme.Scheme
+
 var err error
+
 var cfg *rest.Config
 
 func TestMain(m *testing.M) {

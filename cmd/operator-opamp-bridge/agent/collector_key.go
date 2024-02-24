@@ -25,7 +25,7 @@ type collectorKey struct {
 	namespace string
 }
 
-func newCollectorKey(namespace string, name string) collectorKey {
+func newCollectorKey(namespace, name string) collectorKey {
 	return collectorKey{name: name, namespace: namespace}
 }
 

@@ -127,6 +127,7 @@ func AutoInstrumentationJava() string {
 	if len(autoInstrumentationJava) > 0 {
 		return autoInstrumentationJava
 	}
+
 	return "0.0.0"
 }
 
@@ -134,6 +135,7 @@ func AutoInstrumentationNodeJS() string {
 	if len(autoInstrumentationNodeJS) > 0 {
 		return autoInstrumentationNodeJS
 	}
+
 	return "0.0.0"
 }
 
@@ -141,6 +143,7 @@ func AutoInstrumentationPython() string {
 	if len(autoInstrumentationPython) > 0 {
 		return autoInstrumentationPython
 	}
+
 	return "0.0.0"
 }
 
@@ -148,6 +151,7 @@ func AutoInstrumentationDotNet() string {
 	if len(autoInstrumentationDotNet) > 0 {
 		return autoInstrumentationDotNet
 	}
+
 	return "0.0.0"
 }
 
@@ -155,6 +159,7 @@ func AutoInstrumentationApacheHttpd() string {
 	if len(autoInstrumentationApacheHttpd) > 0 {
 		return autoInstrumentationApacheHttpd
 	}
+
 	return "0.0.0"
 }
 
@@ -162,6 +167,7 @@ func AutoInstrumentationNginx() string {
 	if len(autoInstrumentationNginx) > 0 {
 		return autoInstrumentationNginx
 	}
+
 	return "0.0.0"
 }
 
@@ -169,5 +175,6 @@ func AutoInstrumentationGo() string {
 	if len(autoInstrumentationGo) > 0 {
 		return autoInstrumentationGo
 	}
+
 	return "0.0.0"
 }

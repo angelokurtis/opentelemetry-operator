@@ -21,6 +21,7 @@ import (
 	"github.com/go-logr/logr"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/stretchr/testify/require"
+	colfeaturegate "go.opentelemetry.io/collector/featuregate"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
@@ -28,8 +29,6 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	colfeaturegate "go.opentelemetry.io/collector/featuregate"
 
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 	"github.com/open-telemetry/opentelemetry-operator/internal/config"
@@ -48,31 +47,25 @@ var (
 	pathTypePrefix = networkingv1.PathTypePrefix
 )
 
-var (
-	prometheusFeatureGate = featuregate.PrometheusOperatorIsAvailable.ID()
-)
+var prometheusFeatureGate = featuregate.PrometheusOperatorIsAvailable.ID()
 
-var (
-	opampbridgeSelectorLabels = map[string]string{
-		"app.kubernetes.io/managed-by": "opentelemetry-operator",
-		"app.kubernetes.io/part-of":    "opentelemetry",
-		"app.kubernetes.io/component":  "opentelemetry-opamp-bridge",
-		"app.kubernetes.io/instance":   "test.test",
-	}
-)
+var opampbridgeSelectorLabels = map[string]string{
+	"app.kubernetes.io/managed-by": "opentelemetry-operator",
+	"app.kubernetes.io/part-of":    "opentelemetry",
+	"app.kubernetes.io/component":  "opentelemetry-opamp-bridge",
+	"app.kubernetes.io/instance":   "test.test",
+}
 
-var (
-	taSelectorLabels = map[string]string{
-		"app.kubernetes.io/managed-by": "opentelemetry-operator",
-		"app.kubernetes.io/part-of":    "opentelemetry",
-		"app.kubernetes.io/component":  "opentelemetry-targetallocator",
-		"app.kubernetes.io/instance":   "test.test",
-		"app.kubernetes.io/name":       "test-targetallocator",
-	}
-)
+var taSelectorLabels = map[string]string{
+	"app.kubernetes.io/managed-by": "opentelemetry-operator",
+	"app.kubernetes.io/part-of":    "opentelemetry",
+	"app.kubernetes.io/component":  "opentelemetry-targetallocator",
+	"app.kubernetes.io/instance":   "test.test",
+	"app.kubernetes.io/name":       "test-targetallocator",
+}
 
 func TestBuildCollector(t *testing.T) {
-	var goodConfig = `receivers:
+	goodConfig := `receivers:
   examplereceiver:
     endpoint: "0.0.0.0:12345"
 exporters:
@@ -84,9 +77,11 @@ service:
       exporters: [logging]
 `
 	one := int32(1)
+
 	type args struct {
 		instance v1alpha1.OpenTelemetryCollector
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -845,22 +840,25 @@ service:
 				Config:  cfg,
 				OtelCol: tt.args.instance,
 			}
+
 			got, err := BuildCollector(params)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("BuildAll() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			require.Equal(t, tt.want, got)
 
+			require.Equal(t, tt.want, got)
 		})
 	}
 }
 
 func TestBuildAll_OpAMPBridge(t *testing.T) {
 	one := int32(1)
+
 	type args struct {
 		instance v1alpha1.OpAMPBridge
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -868,7 +866,6 @@ func TestBuildAll_OpAMPBridge(t *testing.T) {
 		wantErr bool
 	}{
 		{
-
 			name: "base case",
 			args: args{
 				instance: v1alpha1.OpAMPBridge{
@@ -1010,7 +1007,8 @@ componentsAllowed:
   receivers:
   - otlp
 endpoint: ws://opamp-server:4320/v1/opamp
-`},
+`,
+					},
 				},
 				&corev1.ServiceAccount{
 					ObjectMeta: metav1.ObjectMeta{
@@ -1068,18 +1066,20 @@ endpoint: ws://opamp-server:4320/v1/opamp
 				Config: cfg,
 			})
 			params := reconciler.getParams(tt.args.instance)
+
 			got, err := BuildOpAMPBridge(params)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("BuildAll() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			require.Equal(t, tt.want, got)
 		})
 	}
 }
 
 func TestBuildTargetAllocator(t *testing.T) {
-	var goodConfig = `
+	goodConfig := `
 receivers:
   prometheus:
     config:
@@ -1105,9 +1105,11 @@ service:
       exporters: [logging]
 `
 	one := int32(1)
+
 	type args struct {
 		instance v1alpha1.OpenTelemetryCollector
 	}
+
 	tests := []struct {
 		name         string
 		args         args
@@ -1843,7 +1845,7 @@ service:
 					},
 					Spec: monitoringv1.ServiceMonitorSpec{
 						Endpoints: []monitoringv1.Endpoint{
-							monitoringv1.Endpoint{Port: "targetallocation"},
+							{Port: "targetallocation"},
 						},
 						Selector: v1.LabelSelector{
 							MatchLabels: map[string]string{
@@ -1875,21 +1877,24 @@ service:
 				Config:  cfg,
 				OtelCol: tt.args.instance,
 			}
+
 			if len(tt.featuregates) > 0 {
 				fg := strings.Join(tt.featuregates, ",")
 				flagset := featuregate.Flags(colfeaturegate.GlobalRegistry())
+
 				if err := flagset.Set(featuregate.FeatureGatesFlag, fg); err != nil {
 					t.Errorf("featuregate setting error = %v", err)
 					return
 				}
 			}
+
 			got, err := BuildCollector(params)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("BuildAll() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			require.Equal(t, tt.want, got)
 
+			require.Equal(t, tt.want, got)
 		})
 	}
 }

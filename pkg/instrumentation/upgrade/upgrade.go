@@ -29,17 +29,15 @@ import (
 	"github.com/open-telemetry/opentelemetry-operator/pkg/featuregate"
 )
 
-var (
-	defaultAnnotationToGate = map[string]*featuregate2.Gate{
-		constants.AnnotationDefaultAutoInstrumentationJava:        featuregate.EnableJavaAutoInstrumentationSupport,
-		constants.AnnotationDefaultAutoInstrumentationNodeJS:      featuregate.EnableNodeJSAutoInstrumentationSupport,
-		constants.AnnotationDefaultAutoInstrumentationPython:      featuregate.EnablePythonAutoInstrumentationSupport,
-		constants.AnnotationDefaultAutoInstrumentationDotNet:      featuregate.EnableDotnetAutoInstrumentationSupport,
-		constants.AnnotationDefaultAutoInstrumentationGo:          featuregate.EnableGoAutoInstrumentationSupport,
-		constants.AnnotationDefaultAutoInstrumentationApacheHttpd: featuregate.EnableApacheHTTPAutoInstrumentationSupport,
-		constants.AnnotationDefaultAutoInstrumentationNginx:       featuregate.EnableNginxAutoInstrumentationSupport,
-	}
-)
+var defaultAnnotationToGate = map[string]*featuregate2.Gate{
+	constants.AnnotationDefaultAutoInstrumentationJava:        featuregate.EnableJavaAutoInstrumentationSupport,
+	constants.AnnotationDefaultAutoInstrumentationNodeJS:      featuregate.EnableNodeJSAutoInstrumentationSupport,
+	constants.AnnotationDefaultAutoInstrumentationPython:      featuregate.EnablePythonAutoInstrumentationSupport,
+	constants.AnnotationDefaultAutoInstrumentationDotNet:      featuregate.EnableDotnetAutoInstrumentationSupport,
+	constants.AnnotationDefaultAutoInstrumentationGo:          featuregate.EnableGoAutoInstrumentationSupport,
+	constants.AnnotationDefaultAutoInstrumentationApacheHttpd: featuregate.EnableApacheHTTPAutoInstrumentationSupport,
+	constants.AnnotationDefaultAutoInstrumentationNginx:       featuregate.EnableNginxAutoInstrumentationSupport,
+}
 
 type InstrumentationUpgrade struct {
 	Client                     client.Client
@@ -66,6 +64,7 @@ func (u *InstrumentationUpgrade) ManagedInstances(ctx context.Context) error {
 		}),
 	}
 	list := &v1alpha1.InstrumentationList{}
+
 	if err := u.Client.List(ctx, list, opts...); err != nil {
 		return fmt.Errorf("failed to list: %w", err)
 	}
@@ -73,6 +72,7 @@ func (u *InstrumentationUpgrade) ManagedInstances(ctx context.Context) error {
 	for i := range list.Items {
 		toUpgrade := list.Items[i]
 		upgraded := u.upgrade(ctx, toUpgrade)
+
 		if !reflect.DeepEqual(upgraded, toUpgrade) {
 			// use update instead of patch because the patch does not upgrade annotations
 			if err := u.Client.Update(ctx, upgraded); err != nil {
@@ -85,6 +85,7 @@ func (u *InstrumentationUpgrade) ManagedInstances(ctx context.Context) error {
 	if len(list.Items) == 0 {
 		u.Logger.Info("no instances to upgrade")
 	}
+
 	return nil
 }
 
@@ -137,5 +138,6 @@ func (u *InstrumentationUpgrade) upgrade(_ context.Context, inst v1alpha1.Instru
 			}
 		}
 	}
+
 	return upgraded
 }

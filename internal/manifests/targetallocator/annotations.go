@@ -49,6 +49,8 @@ func getConfigMapSHA(configMap *v1.ConfigMap) string {
 	if !ok {
 		return ""
 	}
+
 	h := sha256.Sum256([]byte(configString))
+
 	return fmt.Sprintf("%x", h)
 }

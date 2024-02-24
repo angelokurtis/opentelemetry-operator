@@ -56,6 +56,7 @@ func (g *GenericReceiver) Ports() ([]corev1.ServicePort, error) {
 	if port != nil {
 		port.Protocol = g.defaultProtocol
 		port.AppProtocol = g.defaultAppProtocol
+
 		return []corev1.ServicePort{*port}, nil
 	}
 

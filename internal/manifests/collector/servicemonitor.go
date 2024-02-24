@@ -35,13 +35,16 @@ func ServiceMonitor(params manifests.Params) (*monitoringv1.ServiceMonitor, erro
 			"params.OtelCol.name", params.OtelCol.Name,
 			"params.OtelCol.namespace", params.OtelCol.Namespace,
 		)
+
 		return nil, nil
 	}
+
 	var sm monitoringv1.ServiceMonitor
 
 	if params.OtelCol.Spec.Mode == v1alpha1.ModeSidecar {
 		return nil, nil
 	}
+
 	sm = monitoringv1.ServiceMonitor{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: params.OtelCol.Namespace,
@@ -96,5 +99,6 @@ func endpointsFromConfig(logger logr.Logger, otelcol v1alpha1.OpenTelemetryColle
 			endpoints = append(endpoints, e)
 		}
 	}
+
 	return endpoints
 }

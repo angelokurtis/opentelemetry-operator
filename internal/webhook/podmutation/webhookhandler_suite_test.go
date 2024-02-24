@@ -40,7 +40,6 @@ import (
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 	"github.com/open-telemetry/opentelemetry-operator/internal/config"
 	"github.com/open-telemetry/opentelemetry-operator/internal/rbac"
-	// +kubebuilder:scaffold:imports
 )
 
 var (
@@ -63,6 +62,7 @@ func TestMain(m *testing.M) {
 			Paths: []string{filepath.Join("..", "..", "..", "config", "webhook")},
 		},
 	}
+
 	cfg, err = testEnv.Start()
 	if err != nil {
 		fmt.Printf("failed to start testEnv: %v", err)
@@ -83,6 +83,7 @@ func TestMain(m *testing.M) {
 
 	// start webhook server using Manager
 	webhookInstallOptions := &testEnv.WebhookInstallOptions
+
 	mgr, mgrErr := ctrl.NewManager(cfg, ctrl.Options{
 		Scheme:         testScheme,
 		LeaderElection: false,
@@ -104,6 +105,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		fmt.Printf("failed to setup kubernetes clientset %v", clientErr)
 	}
+
 	reviewer := rbac.NewReviewer(clientset)
 
 	if err = v1alpha1.SetupCollectorWebhook(mgr, config.New(), reviewer); err != nil {
@@ -113,6 +115,7 @@ func TestMain(m *testing.M) {
 
 	ctx, cancel = context.WithCancel(context.TODO())
 	defer cancel()
+
 	go func() {
 		if err = mgr.Start(ctx); err != nil {
 			fmt.Printf("failed to start manager: %v", err)
@@ -123,10 +126,13 @@ func TestMain(m *testing.M) {
 	// wait for the webhook server to get ready
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
+
 	dialer := &net.Dialer{Timeout: time.Second}
 	addrPort := fmt.Sprintf("%s:%d", webhookInstallOptions.LocalServingHost, webhookInstallOptions.LocalServingPort)
+
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
+
 		if err = retry.OnError(wait.Backoff{
 			Steps:    20,
 			Duration: 10 * time.Millisecond,

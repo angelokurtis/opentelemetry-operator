@@ -46,11 +46,13 @@ func upgrade0_56_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 
 	hpaList := &autoscalingv1.HorizontalPodAutoscalerList{}
 	ctx := context.Background()
+
 	if err := u.Client.List(ctx, hpaList, listOptions...); err != nil {
 		return nil, fmt.Errorf("couldn't upgrade to v0.56.0, failed trying to find HPA instances: %w", err)
 	}
 
 	errors := []error{}
+
 	for i := range hpaList.Items {
 		existing := hpaList.Items[i]
 		// If there is an autoscaler based on Deployment, replace it with one based on OpenTelemetryCollector
@@ -62,6 +64,7 @@ func upgrade0_56_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 				APIVersion: v1alpha1.GroupVersion.String(),
 			}
 			patch := client.MergeFrom(&existing)
+
 			err := u.Client.Patch(ctx, updated, patch)
 			if err != nil {
 				errors = append(errors, err)

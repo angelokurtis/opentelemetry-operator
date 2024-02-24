@@ -38,6 +38,7 @@ func Routes(params manifests.Params) ([]*routev1.Route, error) {
 	}
 
 	var tlsCfg *routev1.TLSConfig
+
 	switch params.OtelCol.Spec.Ingress.Route.Termination {
 	case v1alpha1.TLSRouteTerminationTypeInsecure:
 		// NOTE: insecure, no tls cfg.
@@ -60,13 +61,16 @@ func Routes(params manifests.Params) ([]*routev1.Route, error) {
 			"instance.name", params.OtelCol.Name,
 			"instance.namespace", params.OtelCol.Namespace,
 		)
+
 		return nil, err
 	}
 
 	routes := make([]*routev1.Route, len(ports))
+
 	for i, p := range ports {
 		portName := naming.PortName(p.Name, p.Port)
 		host := ""
+
 		if params.OtelCol.Spec.Ingress.Hostname != "" {
 			host = fmt.Sprintf("%s.%s", portName, params.OtelCol.Spec.Ingress.Hostname)
 		}
@@ -97,5 +101,6 @@ func Routes(params manifests.Params) ([]*routev1.Route, error) {
 			},
 		}
 	}
+
 	return routes, nil
 }

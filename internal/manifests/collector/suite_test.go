@@ -47,10 +47,12 @@ func deploymentParams() manifests.Params {
 
 func paramsWithMode(mode v1alpha1.Mode) manifests.Params {
 	replicas := int32(2)
+
 	configYAML, err := os.ReadFile("testdata/test.yaml")
 	if err != nil {
 		fmt.Printf("Error getting yaml file: %v", err)
 	}
+
 	return manifests.Params{
 		Config: config.New(config.WithCollectorImage(defaultCollectorImage), config.WithTargetAllocatorImage(defaultTaAllocationImage)),
 		OtelCol: v1alpha1.OpenTelemetryCollector{
@@ -84,9 +86,11 @@ func paramsWithMode(mode v1alpha1.Mode) manifests.Params {
 	}
 }
 
-func newParams(taContainerImage string, file string) (manifests.Params, error) {
+func newParams(taContainerImage, file string) (manifests.Params, error) {
 	replicas := int32(1)
+
 	var configYAML []byte
+
 	var err error
 
 	if file == "" {
@@ -94,6 +98,7 @@ func newParams(taContainerImage string, file string) (manifests.Params, error) {
 	} else {
 		configYAML, err = os.ReadFile(file)
 	}
+
 	if err != nil {
 		return manifests.Params{}, fmt.Errorf("Error getting yaml file: %w", err)
 	}

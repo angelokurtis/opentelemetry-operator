@@ -310,6 +310,7 @@ func TestStatefulSetFilterLabels(t *testing.T) {
 	d := StatefulSet(params)
 
 	assert.Len(t, d.ObjectMeta.Labels, 6)
+
 	for k := range excludedLabels {
 		assert.NotContains(t, d.ObjectMeta.Labels, k)
 	}

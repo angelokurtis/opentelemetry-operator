@@ -18,13 +18,12 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 	"github.com/open-telemetry/opentelemetry-operator/internal/config"
 	"github.com/open-telemetry/opentelemetry-operator/internal/manifests"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDesiredServiceMonitors(t *testing.T) {
@@ -51,5 +50,4 @@ func TestDesiredServiceMonitors(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf("%s-targetallocator", params.OtelCol.Name), actual.Name)
 	assert.Equal(t, params.OtelCol.Namespace, actual.Namespace)
 	assert.Equal(t, "targetallocation", actual.Spec.Endpoints[0].Port)
-
 }

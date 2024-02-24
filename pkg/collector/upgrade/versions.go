@@ -15,7 +15,7 @@
 package upgrade
 
 import (
-	"github.com/Masterminds/semver/v3"
+	semver "github.com/Masterminds/semver/v3"
 
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 )

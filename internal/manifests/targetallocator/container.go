@@ -44,17 +44,19 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 		MountPath: "/conf",
 	}}
 
-	var envVars = otelcol.Spec.TargetAllocator.Env
+	envVars := otelcol.Spec.TargetAllocator.Env
 	if otelcol.Spec.TargetAllocator.Env == nil {
 		envVars = []corev1.EnvVar{}
 	}
 
 	idx := -1
+
 	for i := range envVars {
 		if envVars[i].Name == "OTELCOL_NAMESPACE" {
 			idx = i
 		}
 	}
+
 	if idx == -1 {
 		envVars = append(envVars, corev1.EnvVar{
 			Name: "OTELCOL_NAMESPACE",
@@ -70,6 +72,7 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 	if otelcol.Spec.TargetAllocator.PrometheusCR.Enabled {
 		args = append(args, "--enable-prometheus-cr-watcher")
 	}
+
 	readinessProbe := &corev1.Probe{
 		ProbeHandler: corev1.ProbeHandler{
 			HTTPGet: &corev1.HTTPGetAction{
@@ -88,6 +91,7 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelem
 	}
 
 	envVars = append(envVars, proxy.ReadProxyVarsFromEnv()...)
+
 	return corev1.Container{
 		Name:           naming.TAContainer(),
 		Image:          image,

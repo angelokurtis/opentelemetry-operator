@@ -40,17 +40,19 @@ func Container(cfg config.Config, logger logr.Logger, opampBridge v1alpha1.OpAMP
 		volumeMounts = append(volumeMounts, opampBridge.Spec.VolumeMounts...)
 	}
 
-	var envVars = opampBridge.Spec.Env
+	envVars := opampBridge.Spec.Env
 	if opampBridge.Spec.Env == nil {
 		envVars = []corev1.EnvVar{}
 	}
 
 	idx := -1
+
 	for i := range envVars {
 		if envVars[i].Name == "OTELCOL_NAMESPACE" {
 			idx = i
 		}
 	}
+
 	if idx == -1 {
 		envVars = append(envVars, corev1.EnvVar{
 			Name: "OTELCOL_NAMESPACE",

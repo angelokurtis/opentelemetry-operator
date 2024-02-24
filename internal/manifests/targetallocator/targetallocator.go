@@ -31,6 +31,7 @@ func Build(params manifests.Params) ([]client.Object, error) {
 	if !params.OtelCol.Spec.TargetAllocator.Enabled {
 		return resourceManifests, nil
 	}
+
 	resourceFactories := []manifests.K8sManifestFactory{
 		manifests.Factory(ConfigMap),
 		manifests.Factory(Deployment),
@@ -51,5 +52,6 @@ func Build(params manifests.Params) ([]client.Object, error) {
 			resourceManifests = append(resourceManifests, res)
 		}
 	}
+
 	return resourceManifests, nil
 }

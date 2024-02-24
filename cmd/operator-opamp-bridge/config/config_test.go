@@ -176,7 +176,6 @@ func TestLoad(t *testing.T) {
 			got.ClusterConfig = tt.want.ClusterConfig
 			got.RootLogger = tt.want.RootLogger
 			assert.Equalf(t, tt.want, got, "Load(%v)", tt.args.file)
-
 		})
 	}
 }

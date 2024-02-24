@@ -51,9 +51,11 @@ func HeadlessService(params manifests.Params) (*corev1.Service, error) {
 	for k, v := range h.Annotations {
 		annotations[k] = v
 	}
+
 	h.Annotations = annotations
 
 	h.Spec.ClusterIP = "None"
+
 	return h, nil
 }
 
@@ -123,7 +125,9 @@ func Service(params manifests.Params) (*corev1.Service, error) {
 		// in the first case, we remove the port we inferred from the list
 		// in the second case, we rename our inferred port to something like "port-%d"
 		portNumbers, portNames := extractPortNumbersAndNames(params.OtelCol.Spec.Ports)
+
 		var resultingInferredPorts []corev1.ServicePort
+
 		for _, inferred := range ports {
 			if filtered := filterPort(params.Log, inferred, portNumbers, portNames); filtered != nil {
 				resultingInferredPorts = append(resultingInferredPorts, *filtered)
@@ -135,7 +139,6 @@ func Service(params manifests.Params) (*corev1.Service, error) {
 
 	// if we have no ports, we don't need a service
 	if len(ports) == 0 {
-
 		params.Log.V(1).Info("the instance's configuration didn't yield any ports to open, skipping service", "instance.name", params.OtelCol.Name, "instance.namespace", params.OtelCol.Namespace)
 		return nil, err
 	}
@@ -176,10 +179,12 @@ func filterPort(logger logr.Logger, candidate corev1.ServicePort, portNumbers ma
 				"inferred-port-name", candidate.Name,
 				"fallback-port-name", fallbackName,
 			)
+
 			return nil
 		}
 
 		candidate.Name = fallbackName
+
 		return &candidate
 	}
 

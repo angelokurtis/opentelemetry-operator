@@ -16,13 +16,12 @@ package collector
 
 import (
 	"fmt"
-
-	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
-	"github.com/open-telemetry/opentelemetry-operator/internal/manifests"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	"testing"
+	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
+	"github.com/open-telemetry/opentelemetry-operator/internal/manifests"
 )
 
 func sidecarParams() manifests.Params {
@@ -46,6 +45,7 @@ func TestDesiredPodMonitors(t *testing.T) {
 
 	params, err = newParams("", "testdata/prometheus-exporter.yaml")
 	assert.NoError(t, err)
+
 	params.OtelCol.Spec.Mode = v1alpha1.ModeSidecar
 	params.OtelCol.Spec.Observability.Metrics.EnableMetrics = true
 	actual, err = PodMonitor(params)

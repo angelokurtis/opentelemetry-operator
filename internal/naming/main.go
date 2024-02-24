@@ -126,7 +126,7 @@ func Ingress(otelcol string) string {
 }
 
 // Route builds the route name based on the instance.
-func Route(otelcol string, prefix string) string {
+func Route(otelcol, prefix string) string {
 	return DNSName(Truncate("%s-%s-route", 63, prefix, otelcol))
 }
 

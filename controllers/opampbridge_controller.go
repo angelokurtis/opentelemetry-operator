@@ -69,6 +69,7 @@ func NewOpAMPBridgeReconciler(params OpAMPBridgeReconcilerParams) *OpAMPBridgeRe
 		recorder: params.Recorder,
 		config:   params.Config,
 	}
+
 	return reconciler
 }
 
@@ -82,6 +83,7 @@ func NewOpAMPBridgeReconciler(params OpAMPBridgeReconcilerParams) *OpAMPBridgeRe
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.2/pkg/reconcile
 func (r *OpAMPBridgeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.log.WithValues("opamp-bridge", req.NamespacedName)
+
 	var instance v1alpha1.OpAMPBridge
 	if err := r.Client.Get(ctx, req.NamespacedName, &instance); err != nil {
 		if !apierrors.IsNotFound(err) {
@@ -103,7 +105,9 @@ func (r *OpAMPBridgeReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	if buildErr != nil {
 		return ctrl.Result{}, buildErr
 	}
+
 	err := reconcileDesiredObjects(ctx, r.Client, log, &params.OpAMPBridge, params.Scheme, desiredObjects...)
+
 	return opampbridgeStatus.HandleReconcileStatus(ctx, log, params, err)
 }
 

@@ -29,7 +29,9 @@ const (
 // Build creates the manifest for the collector resource.
 func Build(params manifests.Params) ([]client.Object, error) {
 	var resourceManifests []client.Object
+
 	var manifestFactories []manifests.K8sManifestFactory
+
 	switch params.OtelCol.Spec.Mode {
 	case v1alpha1.ModeDeployment:
 		manifestFactories = append(manifestFactories, manifests.FactoryWithoutError(Deployment))
@@ -42,6 +44,7 @@ func Build(params manifests.Params) ([]client.Object, error) {
 	case v1alpha1.ModeSidecar:
 		params.Log.V(5).Info("not building sidecar...")
 	}
+
 	manifestFactories = append(manifestFactories, []manifests.K8sManifestFactory{
 		manifests.Factory(ConfigMap),
 		manifests.FactoryWithoutError(HorizontalPodAutoscaler),
@@ -51,6 +54,7 @@ func Build(params manifests.Params) ([]client.Object, error) {
 		manifests.Factory(MonitoringService),
 		manifests.Factory(Ingress),
 	}...)
+
 	if params.OtelCol.Spec.Observability.Metrics.EnableMetrics && featuregate.PrometheusOperatorIsAvailable.IsEnabled() {
 		if params.OtelCol.Spec.Mode == v1alpha1.ModeSidecar {
 			manifestFactories = append(manifestFactories, manifests.Factory(PodMonitor))
@@ -58,6 +62,7 @@ func Build(params manifests.Params) ([]client.Object, error) {
 			manifestFactories = append(manifestFactories, manifests.Factory(ServiceMonitor))
 		}
 	}
+
 	for _, factory := range manifestFactories {
 		res, err := factory(params)
 		if err != nil {
@@ -66,6 +71,7 @@ func Build(params manifests.Params) ([]client.Object, error) {
 			resourceManifests = append(resourceManifests, res)
 		}
 	}
+
 	routes, err := Routes(params)
 	if err != nil {
 		return nil, err
@@ -74,5 +80,6 @@ func Build(params manifests.Params) ([]client.Object, error) {
 	for _, route := range routes {
 		resourceManifests = append(resourceManifests, route)
 	}
+
 	return resourceManifests, nil
 }

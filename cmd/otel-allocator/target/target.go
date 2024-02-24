@@ -43,7 +43,7 @@ func (t *Item) Hash() string {
 // INVARIANTS:
 // * Item fields must not be modified after creation.
 // * Item should only be made via its constructor, never directly.
-func NewItem(jobName string, targetURL string, label model.LabelSet, collectorName string) *Item {
+func NewItem(jobName, targetURL string, label model.LabelSet, collectorName string) *Item {
 	return &Item{
 		JobName:       jobName,
 		Link:          LinkJSON{Link: fmt.Sprintf("/jobs/%s/targets", url.QueryEscape(jobName))},

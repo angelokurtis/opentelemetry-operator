@@ -38,9 +38,7 @@ import (
 	"github.com/open-telemetry/opentelemetry-operator/internal/rbac"
 )
 
-var (
-	testScheme *runtime.Scheme = scheme.Scheme
-)
+var testScheme *runtime.Scheme = scheme.Scheme
 
 func TestOTELColDefaultingWebhook(t *testing.T) {
 	one := int32(1)
@@ -1056,12 +1054,14 @@ func TestOTELColValidatingWebhook(t *testing.T) {
 				reviewer: getReviewer(test.shouldFailSar),
 			}
 			ctx := context.Background()
+
 			warnings, err := cvw.ValidateCreate(ctx, &test.otelcol)
 			if test.expectedErr == "" {
 				assert.NoError(t, err)
 			} else {
 				assert.ErrorContains(t, err, test.expectedErr)
 			}
+
 			assert.Equal(t, len(test.expectedWarnings), len(warnings))
 			assert.ElementsMatch(t, warnings, test.expectedWarnings)
 		})
@@ -1075,15 +1075,19 @@ func getReviewer(shouldFailSAR bool) *rbac.Reviewer {
 		if !action.Matches("create", "subjectaccessreviews") {
 			return false, nil, fmt.Errorf("must be a create for a SAR")
 		}
+
 		sar, ok := action.(kubeTesting.CreateAction).GetObject().DeepCopyObject().(*authv1.SubjectAccessReview)
 		if !ok || sar == nil {
 			return false, nil, fmt.Errorf("bad object")
 		}
+
 		sar.Status = authv1.SubjectAccessReviewStatus{
 			Allowed: !shouldFailSAR,
 			Denied:  shouldFailSAR,
 		}
+
 		return true, sar, nil
 	})
+
 	return rbac.NewReviewer(c)
 }

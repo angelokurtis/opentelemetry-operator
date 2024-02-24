@@ -32,26 +32,22 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	promconfig "github.com/prometheus/prometheus/config"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/open-telemetry/opentelemetry-operator/cmd/otel-allocator/allocation"
 	"github.com/open-telemetry/opentelemetry-operator/cmd/otel-allocator/target"
 )
 
-var (
-	httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
-		Name: "opentelemetry_allocator_http_duration_seconds",
-		Help: "Duration of received HTTP requests.",
-	}, []string{"path"})
-)
+var httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	Name: "opentelemetry_allocator_http_duration_seconds",
+	Help: "Duration of received HTTP requests.",
+}, []string{"path"})
 
-var (
-	jsonConfig = jsoniter.Config{
-		EscapeHTML:                    false,
-		MarshalFloatWith6Digits:       true,
-		ObjectFieldMustBeSimpleString: true,
-	}.Froze()
-)
+var jsonConfig = jsoniter.Config{
+	EscapeHTML:                    false,
+	MarshalFloatWith6Digits:       true,
+	ObjectFieldMustBeSimpleString: true,
+}.Froze()
 
 type collectorJSON struct {
 	Link string         `json:"_link"`

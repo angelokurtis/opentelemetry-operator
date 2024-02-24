@@ -25,17 +25,15 @@ import (
 	"github.com/prometheus/prometheus/config"
 	"github.com/prometheus/prometheus/discovery"
 	"github.com/prometheus/prometheus/model/relabel"
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 
 	allocatorWatcher "github.com/open-telemetry/opentelemetry-operator/cmd/otel-allocator/watcher"
 )
 
-var (
-	targetsDiscovered = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "opentelemetry_allocator_targets",
-		Help: "Number of targets discovered.",
-	}, []string{"job_name"})
-)
+var targetsDiscovered = promauto.NewGaugeVec(prometheus.GaugeOpts{
+	Name: "opentelemetry_allocator_targets",
+	Help: "Number of targets discovered.",
+}, []string{"job_name"})
 
 type Discoverer struct {
 	log                  logr.Logger

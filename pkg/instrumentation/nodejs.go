@@ -68,7 +68,8 @@ func injectNodeJSSDK(nodeJSSpec v1alpha1.NodeJS, pod corev1.Pod, index int) (cor
 				EmptyDir: &corev1.EmptyDirVolumeSource{
 					SizeLimit: volumeSize(nodeJSSpec.VolumeSizeLimit),
 				},
-			}})
+			},
+		})
 
 		pod.Spec.InitContainers = append(pod.Spec.InitContainers, corev1.Container{
 			Name:      nodejsInitContainerName,
@@ -81,5 +82,6 @@ func injectNodeJSSDK(nodeJSSpec v1alpha1.NodeJS, pod corev1.Pod, index int) (cor
 			}},
 		})
 	}
+
 	return pod, nil
 }

@@ -32,9 +32,7 @@ import (
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 )
 
-var (
-	clientLogger = logr.Discard()
-)
+var clientLogger = logr.Discard()
 
 const (
 	bridgeName = "bridge-test"

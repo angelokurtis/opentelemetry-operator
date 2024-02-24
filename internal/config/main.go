@@ -98,7 +98,9 @@ func (c *Config) AutoDetect() error {
 	if err != nil {
 		return err
 	}
+
 	c.openshiftRoutesAvailability = ora
+
 	return nil
 }
 

@@ -28,14 +28,16 @@ func isFilteredLabel(label string, filterLabels []string) bool {
 		match, _ := regexp.MatchString(pattern, label)
 		return match
 	}
+
 	return false
 }
 
 // Labels return the common labels to all objects that are part of a managed CR.
-func Labels(instance metav1.ObjectMeta, name string, image string, component string, filterLabels []string) map[string]string {
+func Labels(instance metav1.ObjectMeta, name, image, component string, filterLabels []string) map[string]string {
 	var versionLabel string
 	// new map every time, so that we don't touch the instance's label
 	base := map[string]string{}
+
 	if nil != instance.Labels {
 		for k, v := range instance.Labels {
 			if !isFilteredLabel(k, filterLabels) {
@@ -54,6 +56,7 @@ func Labels(instance metav1.ObjectMeta, name string, image string, component str
 			versionLabel = strings.TrimSuffix(v, "@sha256")
 		}
 	}
+
 	switch lenVersion := len(version); lenVersion {
 	case 3:
 		base["app.kubernetes.io/version"] = versionLabel
@@ -67,6 +70,7 @@ func Labels(instance metav1.ObjectMeta, name string, image string, component str
 	if _, ok := base["app.kubernetes.io/name"]; !ok {
 		base["app.kubernetes.io/name"] = name
 	}
+
 	return base
 }
 

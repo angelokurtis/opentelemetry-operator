@@ -54,41 +54,49 @@ func WithAutoDetect(a autodetect.AutoDetect) Option {
 		o.autoDetect = a
 	}
 }
+
 func WithTargetAllocatorImage(s string) Option {
 	return func(o *options) {
 		o.targetAllocatorImage = s
 	}
 }
+
 func WithOperatorOpAMPBridgeImage(s string) Option {
 	return func(o *options) {
 		o.operatorOpAMPBridgeImage = s
 	}
 }
+
 func WithCollectorImage(s string) Option {
 	return func(o *options) {
 		o.collectorImage = s
 	}
 }
+
 func WithCollectorConfigMapEntry(s string) Option {
 	return func(o *options) {
 		o.collectorConfigMapEntry = s
 	}
 }
+
 func WithTargetAllocatorConfigMapEntry(s string) Option {
 	return func(o *options) {
 		o.targetAllocatorConfigMapEntry = s
 	}
 }
+
 func WithOperatorOpAMPBridgeConfigMapEntry(s string) Option {
 	return func(o *options) {
 		o.operatorOpAMPBridgeConfigMapEntry = s
 	}
 }
+
 func WithLogger(logger logr.Logger) Option {
 	return func(o *options) {
 		o.logger = logger
 	}
 }
+
 func WithVersion(v version.Version) Option {
 	return func(o *options) {
 		o.version = v
@@ -145,13 +153,12 @@ func WithOpenShiftRoutesAvailability(os openshift.RoutesAvailability) Option {
 
 func WithLabelFilters(labelFilters []string) Option {
 	return func(o *options) {
-
 		filters := []string{}
+
 		for _, pattern := range labelFilters {
 			var result strings.Builder
 
 			for i, literal := range strings.Split(pattern, "*") {
-
 				// Replace * with .*
 				if i > 0 {
 					result.WriteString(".*")
@@ -161,6 +168,7 @@ func WithLabelFilters(labelFilters []string) Option {
 				// literal text.
 				result.WriteString(regexp.QuoteMeta(literal))
 			}
+
 			filters = append(filters, result.String())
 		}
 

@@ -224,6 +224,7 @@ func TestDaemonsetFilterLabels(t *testing.T) {
 	d := DaemonSet(params)
 
 	assert.Len(t, d.ObjectMeta.Labels, 6)
+
 	for k := range excludedLabels {
 		assert.NotContains(t, d.ObjectMeta.Labels, k)
 	}

@@ -31,8 +31,10 @@ func Deployment(params manifests.Params) (*appsv1.Deployment, error) {
 	configMap, err := ConfigMap(params)
 	if err != nil {
 		params.Log.Info("failed to construct target allocator config map for annotations")
+
 		configMap = nil
 	}
+
 	annotations := Annotations(params.OtelCol, configMap)
 
 	return &appsv1.Deployment{

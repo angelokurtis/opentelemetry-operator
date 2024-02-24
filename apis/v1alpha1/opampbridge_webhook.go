@@ -20,13 +20,12 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
-
-	"github.com/open-telemetry/opentelemetry-operator/internal/config"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/open-telemetry/opentelemetry-operator/internal/config"
 )
 
 var (
@@ -50,6 +49,7 @@ func (o *OpAMPBridgeWebhook) Default(ctx context.Context, obj runtime.Object) er
 	if !ok {
 		return fmt.Errorf("expected an OpAMPBridge, received %T", obj)
 	}
+
 	return o.defaulter(opampBridge)
 }
 
@@ -58,6 +58,7 @@ func (c OpAMPBridgeWebhook) ValidateCreate(ctx context.Context, obj runtime.Obje
 	if !ok {
 		return nil, fmt.Errorf("expected an OpAMPBridge, received %T", obj)
 	}
+
 	return c.validate(opampBridge)
 }
 
@@ -66,6 +67,7 @@ func (c OpAMPBridgeWebhook) ValidateUpdate(ctx context.Context, oldObj, newObj r
 	if !ok {
 		return nil, fmt.Errorf("expected an OpAMPBridge, received %T", newObj)
 	}
+
 	return c.validate(opampBridge)
 }
 
@@ -74,6 +76,7 @@ func (o OpAMPBridgeWebhook) ValidateDelete(ctx context.Context, obj runtime.Obje
 	if !ok || opampBridge == nil {
 		return nil, fmt.Errorf("expected an OpAMPBridge, received %T", obj)
 	}
+
 	return o.validate(opampBridge)
 }
 
@@ -85,6 +88,7 @@ func (o OpAMPBridgeWebhook) defaulter(r *OpAMPBridge) error {
 	if r.Labels == nil {
 		r.Labels = map[string]string{}
 	}
+
 	if r.Labels["app.kubernetes.io/managed-by"] == "" {
 		r.Labels["app.kubernetes.io/managed-by"] = "opentelemetry-operator"
 	}
@@ -98,10 +102,12 @@ func (o OpAMPBridgeWebhook) defaulter(r *OpAMPBridge) error {
 	if r.Spec.Capabilities == nil {
 		r.Spec.Capabilities = make(map[OpAMPBridgeCapability]bool)
 	}
+
 	enabled, found := r.Spec.Capabilities[OpAMPBridgeCapabilityReportsStatus]
 	if !enabled || !found {
 		r.Spec.Capabilities[OpAMPBridgeCapabilityReportsStatus] = true
 	}
+
 	return nil
 }
 
@@ -122,6 +128,7 @@ func (o OpAMPBridgeWebhook) validate(r *OpAMPBridge) (admission.Warnings, error)
 	for _, p := range r.Spec.Ports {
 		nameErrs := validation.IsValidPortName(p.Name)
 		numErrs := validation.IsValidPortNum(int(p.Port))
+
 		if len(nameErrs) > 0 || len(numErrs) > 0 {
 			return warnings, fmt.Errorf("the OpAMPBridge Spec Ports configuration is incorrect, port name '%s' errors: %s, num '%d' errors: %s",
 				p.Name, nameErrs, p.Port, numErrs)
@@ -132,6 +139,7 @@ func (o OpAMPBridgeWebhook) validate(r *OpAMPBridge) (admission.Warnings, error)
 	if r.Spec.Replicas != nil && *r.Spec.Replicas > 1 {
 		return warnings, fmt.Errorf("replica count must not be greater than 1")
 	}
+
 	return warnings, nil
 }
 
@@ -141,6 +149,7 @@ func SetupOpAMPBridgeWebhook(mgr ctrl.Manager, cfg config.Config) error {
 		scheme: mgr.GetScheme(),
 		cfg:    cfg,
 	}
+
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(&OpAMPBridge{}).
 		WithValidator(webhook).

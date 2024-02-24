@@ -52,6 +52,7 @@ func TestSDKInjection(t *testing.T) {
 	}
 	err := k8sClient.Create(context.Background(), &ns)
 	require.NoError(t, err)
+
 	dep := appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "project1",
@@ -74,6 +75,7 @@ func TestSDKInjection(t *testing.T) {
 	}
 	err = k8sClient.Create(context.Background(), &dep)
 	require.NoError(t, err)
+
 	rs := appsv1.ReplicaSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "my-replicaset",
@@ -955,13 +957,14 @@ func TestInjectGo(t *testing.T) {
 		{
 			name: "shared process namespace disabled",
 			insts: languageInstrumentations{
-				Go: instrumentationWithContainers{Instrumentation: &v1alpha1.Instrumentation{
-					Spec: v1alpha1.InstrumentationSpec{
-						Go: v1alpha1.Go{
-							Image: "otel/go:1",
+				Go: instrumentationWithContainers{
+					Instrumentation: &v1alpha1.Instrumentation{
+						Spec: v1alpha1.InstrumentationSpec{
+							Go: v1alpha1.Go{
+								Image: "otel/go:1",
+							},
 						},
 					},
-				},
 				},
 			},
 			pod: corev1.Pod{
@@ -988,13 +991,14 @@ func TestInjectGo(t *testing.T) {
 		{
 			name: "OTEL_GO_AUTO_TARGET_EXE not set",
 			insts: languageInstrumentations{
-				Go: instrumentationWithContainers{Instrumentation: &v1alpha1.Instrumentation{
-					Spec: v1alpha1.InstrumentationSpec{
-						Go: v1alpha1.Go{
-							Image: "otel/go:1",
+				Go: instrumentationWithContainers{
+					Instrumentation: &v1alpha1.Instrumentation{
+						Spec: v1alpha1.InstrumentationSpec{
+							Go: v1alpha1.Go{
+								Image: "otel/go:1",
+							},
 						},
 					},
-				},
 				},
 			},
 			pod: corev1.Pod{
@@ -1019,19 +1023,20 @@ func TestInjectGo(t *testing.T) {
 		{
 			name: "OTEL_GO_AUTO_TARGET_EXE set by inst",
 			insts: languageInstrumentations{
-				Go: instrumentationWithContainers{Instrumentation: &v1alpha1.Instrumentation{
-					Spec: v1alpha1.InstrumentationSpec{
-						Go: v1alpha1.Go{
-							Image: "otel/go:1",
-							Env: []corev1.EnvVar{
-								{
-									Name:  "OTEL_GO_AUTO_TARGET_EXE",
-									Value: "foo",
+				Go: instrumentationWithContainers{
+					Instrumentation: &v1alpha1.Instrumentation{
+						Spec: v1alpha1.InstrumentationSpec{
+							Go: v1alpha1.Go{
+								Image: "otel/go:1",
+								Env: []corev1.EnvVar{
+									{
+										Name:  "OTEL_GO_AUTO_TARGET_EXE",
+										Value: "foo",
+									},
 								},
 							},
 						},
 					},
-				},
 				},
 			},
 			pod: corev1.Pod{
@@ -1226,7 +1231,6 @@ func TestInjectGo(t *testing.T) {
 }
 
 func TestInjectApacheHttpd(t *testing.T) {
-
 	tests := []struct {
 		name     string
 		insts    languageInstrumentations
@@ -1295,13 +1299,15 @@ func TestInjectApacheHttpd(t *testing.T) {
 							Image:   "img:1",
 							Command: []string{"/bin/sh", "-c"},
 							Args: []string{
-								"cp -r /opt/opentelemetry/* /opt/opentelemetry-webserver/agent && export agentLogDir=$(echo \"/opt/opentelemetry-webserver/agent/logs\" | sed 's,/,\\\\/,g') && cat /opt/opentelemetry-webserver/agent/conf/appdynamics_sdk_log4cxx.xml.template | sed 's/__agent_log_dir__/'${agentLogDir}'/g'  > /opt/opentelemetry-webserver/agent/conf/appdynamics_sdk_log4cxx.xml &&echo \"$OTEL_APACHE_AGENT_CONF\" > /opt/opentelemetry-webserver/source-conf/opentemetry_agent.conf && sed -i 's/<<SID-PLACEHOLDER>>/'${APACHE_SERVICE_INSTANCE_ID}'/g' /opt/opentelemetry-webserver/source-conf/opentemetry_agent.conf && echo 'Include /usr/local/apache2/conf/opentemetry_agent.conf' >> /opt/opentelemetry-webserver/source-conf/httpd.conf"},
+								"cp -r /opt/opentelemetry/* /opt/opentelemetry-webserver/agent && export agentLogDir=$(echo \"/opt/opentelemetry-webserver/agent/logs\" | sed 's,/,\\\\/,g') && cat /opt/opentelemetry-webserver/agent/conf/appdynamics_sdk_log4cxx.xml.template | sed 's/__agent_log_dir__/'${agentLogDir}'/g'  > /opt/opentelemetry-webserver/agent/conf/appdynamics_sdk_log4cxx.xml &&echo \"$OTEL_APACHE_AGENT_CONF\" > /opt/opentelemetry-webserver/source-conf/opentemetry_agent.conf && sed -i 's/<<SID-PLACEHOLDER>>/'${APACHE_SERVICE_INSTANCE_ID}'/g' /opt/opentelemetry-webserver/source-conf/opentemetry_agent.conf && echo 'Include /usr/local/apache2/conf/opentemetry_agent.conf' >> /opt/opentelemetry-webserver/source-conf/httpd.conf",
+							},
 							Env: []corev1.EnvVar{
 								{
 									Name:  apacheAttributesEnvVar,
 									Value: "\n#Load the Otel Webserver SDK\nLoadFile /opt/opentelemetry-webserver/agent/sdk_lib/lib/libopentelemetry_common.so\nLoadFile /opt/opentelemetry-webserver/agent/sdk_lib/lib/libopentelemetry_resources.so\nLoadFile /opt/opentelemetry-webserver/agent/sdk_lib/lib/libopentelemetry_trace.so\nLoadFile /opt/opentelemetry-webserver/agent/sdk_lib/lib/libopentelemetry_otlp_recordable.so\nLoadFile /opt/opentelemetry-webserver/agent/sdk_lib/lib/libopentelemetry_exporter_ostream_span.so\nLoadFile /opt/opentelemetry-webserver/agent/sdk_lib/lib/libopentelemetry_exporter_otlp_grpc.so\n#Load the Otel ApacheModule SDK\nLoadFile /opt/opentelemetry-webserver/agent/sdk_lib/lib/libopentelemetry_webserver_sdk.so\n#Load the Apache Module. In this example for Apache 2.4\n#LoadModule otel_apache_module /opt/opentelemetry-webserver/agent/WebServerModule/Apache/libmod_apache_otel.so\n#Load the Apache Module. In this example for Apache 2.2\n#LoadModule otel_apache_module /opt/opentelemetry-webserver/agent/WebServerModule/Apache/libmod_apache_otel22.so\nLoadModule otel_apache_module /opt/opentelemetry-webserver/agent/WebServerModule/Apache/libmod_apache_otel.so\n#Attributes\nApacheModuleEnabled ON\nApacheModuleOtelExporterEndpoint https://collector:4318\nApacheModuleOtelSpanExporter otlp\nApacheModuleResolveBackends  ON\nApacheModuleServiceInstanceId <<SID-PLACEHOLDER>>\nApacheModuleServiceName app\nApacheModuleServiceNamespace apache-httpd\nApacheModuleTraceAsError  ON\n",
 								},
-								{Name: apacheServiceInstanceIdEnvVar,
+								{
+									Name: apacheServiceInstanceIdEnvVar,
 									ValueFrom: &corev1.EnvVarSource{
 										FieldRef: &corev1.ObjectFieldSelector{
 											FieldPath: "metadata.name",
@@ -1383,7 +1389,6 @@ func TestInjectApacheHttpd(t *testing.T) {
 }
 
 func TestInjectNginx(t *testing.T) {
-
 	tests := []struct {
 		name     string
 		insts    languageInstrumentations

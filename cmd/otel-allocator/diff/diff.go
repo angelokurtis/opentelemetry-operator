@@ -25,7 +25,7 @@ type Hasher interface {
 	Hash() string
 }
 
-func NewChanges[T Hasher](additions map[string]T, removals map[string]T) Changes[T] {
+func NewChanges[T Hasher](additions, removals map[string]T) Changes[T] {
 	return Changes[T]{additions: additions, removals: removals}
 }
 

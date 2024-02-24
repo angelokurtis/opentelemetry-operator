@@ -109,6 +109,7 @@ func TestJaegerExposeDefaultPorts(t *testing.T) {
 		assert.EqualValues(t, r.portNumber, port.Port)
 		assert.EqualValues(t, r.transportProtocol, port.Protocol)
 	}
+
 	for k, v := range expectedResults {
 		assert.True(t, v.seen, "the port %s wasn't included in the service ports", k)
 	}

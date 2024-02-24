@@ -290,6 +290,7 @@ func TestInjectGoSDK(t *testing.T) {
 			if test.setFeatureGates != nil {
 				test.setFeatureGates(t)
 			}
+
 			pod, err := injectGoSDK(test.Go, test.pod)
 			assert.Equal(t, test.expected, pod)
 			assert.Equal(t, test.err, err)

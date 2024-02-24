@@ -46,6 +46,7 @@ func TestConfigMapHash(t *testing.T) {
 	}
 	expectedConfigMap, err := ConfigMap(params)
 	require.NoError(t, err)
+
 	expectedConfig := expectedConfigMap.Data[targetAllocatorFilename]
 	require.NotEmpty(t, expectedConfig)
 	expectedHash := sha256.Sum256([]byte(expectedConfig))

@@ -39,7 +39,7 @@ var metricContainerPort = corev1.ContainerPort{
 
 func TestContainerNewDefault(t *testing.T) {
 	// prepare
-	var defaultConfig = `receivers:
+	defaultConfig := `receivers:
 		otlp:
 			protocols:
 			http:
@@ -91,7 +91,7 @@ func TestContainerWithImageOverridden(t *testing.T) {
 }
 
 func TestContainerPorts(t *testing.T) {
-	var goodConfig = `receivers:
+	goodConfig := `receivers:
   examplereceiver:
     endpoint: "0.0.0.0:12345"
 exporters:
@@ -501,7 +501,9 @@ func TestContainerDefaultEnvVars(t *testing.T) {
 func TestContainerProxyEnvVars(t *testing.T) {
 	err := os.Setenv("NO_PROXY", "localhost")
 	require.NoError(t, err)
+
 	defer os.Unsetenv("NO_PROXY")
+
 	otelcol := v1alpha1.OpenTelemetryCollector{
 		Spec: v1alpha1.OpenTelemetryCollectorSpec{},
 	}
@@ -619,7 +621,7 @@ func TestContainerImagePullPolicy(t *testing.T) {
 }
 
 func TestContainerEnvFrom(t *testing.T) {
-	//prepare
+	// prepare
 	envFrom1 := corev1.EnvFromSource{
 		SecretRef: &corev1.SecretEnvSource{
 			LocalObjectReference: corev1.LocalObjectReference{
@@ -696,7 +698,6 @@ service:
 
 func TestContainerProbeEmptyConfig(t *testing.T) {
 	// prepare
-
 	otelcol := v1alpha1.OpenTelemetryCollector{
 		Spec: v1alpha1.OpenTelemetryCollectorSpec{
 			Config: `extensions:
@@ -719,7 +720,6 @@ service:
 
 func TestContainerProbeNoConfig(t *testing.T) {
 	// prepare
-
 	otelcol := v1alpha1.OpenTelemetryCollector{
 		Spec: v1alpha1.OpenTelemetryCollectorSpec{
 			Config: `extensions:

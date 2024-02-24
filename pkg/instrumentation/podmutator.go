@@ -67,24 +67,31 @@ func (langInsts languageInstrumentations) isSingleInstrumentationEnabled() bool 
 	if langInsts.Java.Instrumentation != nil {
 		count++
 	}
+
 	if langInsts.NodeJS.Instrumentation != nil {
 		count++
 	}
+
 	if langInsts.Python.Instrumentation != nil {
 		count++
 	}
+
 	if langInsts.DotNet.Instrumentation != nil {
 		count++
 	}
+
 	if langInsts.ApacheHttpd.Instrumentation != nil {
 		count++
 	}
+
 	if langInsts.Nginx.Instrumentation != nil {
 		count++
 	}
+
 	if langInsts.Go.Instrumentation != nil {
 		count++
 	}
+
 	if langInsts.Sdk.Instrumentation != nil {
 		count++
 	}
@@ -95,7 +102,9 @@ func (langInsts languageInstrumentations) isSingleInstrumentationEnabled() bool 
 // Check if specific containers are provided for configured instrumentation.
 func (langInsts languageInstrumentations) areContainerNamesConfiguredForMultipleInstrumentations() (bool, error) {
 	var instrWithoutContainers int
+
 	var instrWithContainers int
+
 	var allContainers []string
 
 	// Check for instrumentations with and without containers.
@@ -104,36 +113,43 @@ func (langInsts languageInstrumentations) areContainerNamesConfiguredForMultiple
 		instrWithoutContainers += isInstrWithoutContainers(langInsts.Java)
 		allContainers = append(allContainers, langInsts.Java.Containers)
 	}
+
 	if langInsts.NodeJS.Instrumentation != nil {
 		instrWithContainers += isInstrWithContainers(langInsts.NodeJS)
 		instrWithoutContainers += isInstrWithoutContainers(langInsts.NodeJS)
 		allContainers = append(allContainers, langInsts.NodeJS.Containers)
 	}
+
 	if langInsts.Python.Instrumentation != nil {
 		instrWithContainers += isInstrWithContainers(langInsts.Python)
 		instrWithoutContainers += isInstrWithoutContainers(langInsts.Python)
 		allContainers = append(allContainers, langInsts.Python.Containers)
 	}
+
 	if langInsts.DotNet.Instrumentation != nil {
 		instrWithContainers += isInstrWithContainers(langInsts.DotNet)
 		instrWithoutContainers += isInstrWithoutContainers(langInsts.DotNet)
 		allContainers = append(allContainers, langInsts.DotNet.Containers)
 	}
+
 	if langInsts.ApacheHttpd.Instrumentation != nil {
 		instrWithContainers += isInstrWithContainers(langInsts.ApacheHttpd)
 		instrWithoutContainers += isInstrWithoutContainers(langInsts.ApacheHttpd)
 		allContainers = append(allContainers, langInsts.ApacheHttpd.Containers)
 	}
+
 	if langInsts.Nginx.Instrumentation != nil {
 		instrWithContainers += isInstrWithContainers(langInsts.Nginx)
 		instrWithoutContainers += isInstrWithoutContainers(langInsts.Nginx)
 		allContainers = append(allContainers, langInsts.Nginx.Containers)
 	}
+
 	if langInsts.Go.Instrumentation != nil {
 		instrWithContainers += isInstrWithContainers(langInsts.Go)
 		instrWithoutContainers += isInstrWithoutContainers(langInsts.Go)
 		allContainers = append(allContainers, langInsts.Go.Containers)
 	}
+
 	if langInsts.Sdk.Instrumentation != nil {
 		instrWithContainers += isInstrWithContainers(langInsts.Sdk)
 		instrWithoutContainers += isInstrWithoutContainers(langInsts.Sdk)
@@ -168,24 +184,31 @@ func (langInsts *languageInstrumentations) setInstrumentationLanguageContainers(
 	if langInsts.Java.Instrumentation != nil {
 		langInsts.Java.Containers = containers
 	}
+
 	if langInsts.NodeJS.Instrumentation != nil {
 		langInsts.NodeJS.Containers = containers
 	}
+
 	if langInsts.Python.Instrumentation != nil {
 		langInsts.Python.Containers = containers
 	}
+
 	if langInsts.DotNet.Instrumentation != nil {
 		langInsts.DotNet.Containers = containers
 	}
+
 	if langInsts.ApacheHttpd.Instrumentation != nil {
 		langInsts.ApacheHttpd.Containers = containers
 	}
+
 	if langInsts.Nginx.Instrumentation != nil {
 		langInsts.Nginx.Containers = containers
 	}
+
 	if langInsts.Go.Instrumentation != nil {
 		langInsts.Go.Containers = containers
 	}
+
 	if langInsts.Sdk.Instrumentation != nil {
 		langInsts.Sdk.Containers = containers
 	}
@@ -215,6 +238,7 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 	}
 
 	var inst *v1alpha1.Instrumentation
+
 	var err error
 
 	insts := languageInstrumentations{}
@@ -226,6 +250,7 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 		logger.Error(err, "failed to select an OpenTelemetry Instrumentation instance for this pod")
 		return pod, err
 	}
+
 	if featuregate.EnableJavaAutoInstrumentationSupport.IsEnabled() || inst == nil {
 		insts.Java.Instrumentation = inst
 	} else {
@@ -238,6 +263,7 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 		logger.Error(err, "failed to select an OpenTelemetry Instrumentation instance for this pod")
 		return pod, err
 	}
+
 	if featuregate.EnableNodeJSAutoInstrumentationSupport.IsEnabled() || inst == nil {
 		insts.NodeJS.Instrumentation = inst
 	} else {
@@ -250,6 +276,7 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 		logger.Error(err, "failed to select an OpenTelemetry Instrumentation instance for this pod")
 		return pod, err
 	}
+
 	if featuregate.EnablePythonAutoInstrumentationSupport.IsEnabled() || inst == nil {
 		insts.Python.Instrumentation = inst
 	} else {
@@ -262,6 +289,7 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 		logger.Error(err, "failed to select an OpenTelemetry Instrumentation instance for this pod")
 		return pod, err
 	}
+
 	if featuregate.EnableDotnetAutoInstrumentationSupport.IsEnabled() || inst == nil {
 		insts.DotNet.Instrumentation = inst
 		insts.DotNet.AdditionalAnnotations = map[string]string{annotationDotNetRuntime: annotationValue(ns.ObjectMeta, pod.ObjectMeta, annotationDotNetRuntime)}
@@ -275,6 +303,7 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 		logger.Error(err, "failed to select an OpenTelemetry Instrumentation instance for this pod")
 		return pod, err
 	}
+
 	if featuregate.EnableGoAutoInstrumentationSupport.IsEnabled() || inst == nil {
 		insts.Go.Instrumentation = inst
 	} else {
@@ -287,6 +316,7 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 		logger.Error(err, "failed to select an OpenTelemetry Instrumentation instance for this pod")
 		return pod, err
 	}
+
 	if featuregate.EnableApacheHTTPAutoInstrumentationSupport.IsEnabled() || inst == nil {
 		insts.ApacheHttpd.Instrumentation = inst
 	} else {
@@ -299,6 +329,7 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 		logger.Error(err, "failed to select an OpenTelemetry Instrumentation instance for this pod")
 		return pod, err
 	}
+
 	if featuregate.EnableNginxAutoInstrumentationSupport.IsEnabled() || inst == nil {
 		insts.Nginx.Instrumentation = inst
 	} else {
@@ -311,13 +342,13 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 		logger.Error(err, "failed to select an OpenTelemetry Instrumentation instance for this pod")
 		return pod, err
 	}
+
 	insts.Sdk.Instrumentation = inst
 
 	if insts.Java.Instrumentation == nil && insts.NodeJS.Instrumentation == nil && insts.Python.Instrumentation == nil &&
 		insts.DotNet.Instrumentation == nil && insts.Go.Instrumentation == nil && insts.ApacheHttpd.Instrumentation == nil &&
 		insts.Nginx.Instrumentation == nil &&
 		insts.Sdk.Instrumentation == nil {
-
 		logger.V(1).Info("annotation not present in deployment, skipping instrumentation injection")
 		return pod, nil
 	}
@@ -351,7 +382,6 @@ func (pm *instPodMutator) Mutate(ctx context.Context, ns corev1.Namespace, pod c
 			logger.V(1).Error(fmt.Errorf("multiple injection annotations present"), "skipping instrumentation injection")
 			return pod, nil
 		}
-
 	}
 
 	// once it's been determined that instrumentation is desired, none exists yet, and we know which instance it should talk to,
@@ -381,6 +411,7 @@ func (pm *instPodMutator) getInstrumentationInstance(ctx context.Context, ns cor
 	}
 
 	otelInst := &v1alpha1.Instrumentation{}
+
 	err := pm.Client.Get(ctx, instNamespacedName, otelInst)
 	if err != nil {
 		return nil, err

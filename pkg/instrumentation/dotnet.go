@@ -51,7 +51,6 @@ const (
 )
 
 func injectDotNetSDK(dotNetSpec v1alpha1.DotNet, pod corev1.Pod, index int, runtime string) (corev1.Pod, error) {
-
 	// caller checks if there is at least one container.
 	container := &pod.Spec.Containers[index]
 
@@ -73,6 +72,7 @@ func injectDotNetSDK(dotNetSpec v1alpha1.DotNet, pod corev1.Pod, index int, runt
 	}
 
 	coreClrProfilerPath := ""
+
 	switch runtime {
 	case "", dotNetRuntimeLinuxGlibc:
 		coreClrProfilerPath = dotNetCoreClrProfilerGlibcPath
@@ -122,7 +122,8 @@ func injectDotNetSDK(dotNetSpec v1alpha1.DotNet, pod corev1.Pod, index int, runt
 				EmptyDir: &corev1.EmptyDirVolumeSource{
 					SizeLimit: volumeSize(dotNetSpec.VolumeSizeLimit),
 				},
-			}})
+			},
+		})
 
 		pod.Spec.InitContainers = append(pod.Spec.InitContainers, corev1.Container{
 			Name:      dotnetInitContainerName,
@@ -135,21 +136,24 @@ func injectDotNetSDK(dotNetSpec v1alpha1.DotNet, pod corev1.Pod, index int, runt
 			}},
 		})
 	}
+
 	return pod, nil
 }
 
 // setDotNetEnvVar function sets env var to the container if not exist already.
 // value of concatValues should be set to true if the env var supports multiple values separated by :.
 // If it is set to false, the original container's env var value has priority.
-func setDotNetEnvVar(container *corev1.Container, envVarName string, envVarValue string, concatValues bool) {
+func setDotNetEnvVar(container *corev1.Container, envVarName, envVarValue string, concatValues bool) {
 	idx := getIndexOfEnv(container.Env, envVarName)
 	if idx < 0 {
 		container.Env = append(container.Env, corev1.EnvVar{
 			Name:  envVarName,
 			Value: envVarValue,
 		})
+
 		return
 	}
+
 	if concatValues {
 		container.Env[idx].Value = fmt.Sprintf("%s:%s", container.Env[idx].Value, envVarValue)
 	}

@@ -17,9 +17,8 @@ package collector
 import (
 	"testing"
 
-	colfeaturegate "go.opentelemetry.io/collector/featuregate"
-
 	"github.com/stretchr/testify/assert"
+	colfeaturegate "go.opentelemetry.io/collector/featuregate"
 
 	"github.com/open-telemetry/opentelemetry-operator/pkg/featuregate"
 )
@@ -69,7 +68,6 @@ service:
 		assert.Equal(t, "test-collector", actual.Name)
 		assert.Equal(t, expectedLables, actual.Labels)
 		assert.Equal(t, expectedData, actual.Data)
-
 	})
 
 	t.Run("should return expected collector config map with http_sd_config if rewrite flag disabled", func(t *testing.T) {
@@ -78,6 +76,7 @@ service:
 		t.Cleanup(func() {
 			_ = colfeaturegate.GlobalRegistry().Set(featuregate.EnableTargetAllocatorRewrite.ID(), true)
 		})
+
 		expectedLables["app.kubernetes.io/component"] = "opentelemetry-collector"
 		expectedLables["app.kubernetes.io/name"] = "test-collector"
 
@@ -116,7 +115,6 @@ service:
 		assert.Equal(t, "test-collector", actual.GetName())
 		assert.Equal(t, expectedLables, actual.GetLabels())
 		assert.Equal(t, expectedData, actual.Data)
-
 	})
 
 	t.Run("should return expected escaped collector config map with http_sd_config if rewrite flag disabled", func(t *testing.T) {
@@ -160,6 +158,7 @@ service:
 
 		param, err := newParams("test/test-img", "testdata/http_sd_config_servicemonitor_test_ta_set.yaml")
 		assert.NoError(t, err)
+
 		param.OtelCol.Spec.TargetAllocator.Enabled = true
 		actual, err := ConfigMap(param)
 
@@ -170,7 +169,6 @@ service:
 
 		// Reset the value
 		expectedLables["app.kubernetes.io/version"] = "0.47.0"
-
 	})
 
 	t.Run("should return expected escaped collector config map with target_allocator config block", func(t *testing.T) {
@@ -202,6 +200,7 @@ service:
 
 		param, err := newParams("test/test-img", "testdata/http_sd_config_servicemonitor_test.yaml")
 		assert.NoError(t, err)
+
 		param.OtelCol.Spec.TargetAllocator.Enabled = true
 		actual, err := ConfigMap(param)
 
@@ -212,8 +211,7 @@ service:
 
 		// Reset the value
 		expectedLables["app.kubernetes.io/version"] = "0.47.0"
+
 		assert.NoError(t, err)
-
 	})
-
 }

@@ -18,12 +18,11 @@ import (
 	"fmt"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 	"github.com/open-telemetry/opentelemetry-operator/internal/manifests/collector/adapters"
-
-	corev1 "k8s.io/api/core/v1"
 )
 
 func upgrade0_9_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (*v1alpha1.OpenTelemetryCollector, error) {
@@ -47,9 +46,11 @@ func upgrade0_9_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (*
 			case map[interface{}]interface{}:
 				// delete is a noop if there's no such entry
 				delete(exporter, "reconnection_delay")
+
 				existing := &corev1.ConfigMap{}
 				updated := existing.DeepCopy()
 				u.Recorder.Event(updated, "Normal", "Upgrade", fmt.Sprintf("upgrade to v0.9.0 removed the property reconnection_delay for exporter %q", k))
+
 				exporters[k] = exporter
 			case string:
 				if len(exporter) == 0 {
@@ -63,11 +64,13 @@ func upgrade0_9_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (*
 	}
 
 	cfg["exporters"] = exporters
+
 	res, err := yaml.Marshal(cfg)
 	if err != nil {
 		return otelcol, fmt.Errorf("couldn't upgrade to v0.9.0, failed to marshall back configuration: %w", err)
 	}
 
 	otelcol.Spec.Config = string(res)
+
 	return otelcol, nil
 }

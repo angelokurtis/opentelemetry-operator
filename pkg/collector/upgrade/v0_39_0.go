@@ -18,12 +18,11 @@ import (
 	"fmt"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 	"github.com/open-telemetry/opentelemetry-operator/internal/manifests/collector/adapters"
-
-	corev1 "k8s.io/api/core/v1"
 )
 
 func upgrade0_39_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (*v1alpha1.OpenTelemetryCollector, error) {
@@ -43,6 +42,7 @@ func upgrade0_39_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 			for k2 := range memoryLimiter {
 				if k2 == "ballast_size_mib" {
 					delete(memoryLimiter, k2)
+
 					existing := &corev1.ConfigMap{}
 					updated := existing.DeepCopy()
 					u.Recorder.Event(updated, "Normal", "Upgrade", fmt.Sprintf("upgrade to v0.39.0 has dropped the ballast_size_mib field name from %s processor", k1))
@@ -87,6 +87,7 @@ func upgrade0_39_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 						// no metricsConfig in service pipelines?
 						return otelcol, nil
 					}
+
 					for k3, v3 := range metricsConfig {
 						if k3.(string) == "receivers" {
 							receiversList, ok := v3.([]interface{})
@@ -94,6 +95,7 @@ func upgrade0_39_0(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 								// no receivers list in service pipeline?
 								return otelcol, nil
 							}
+
 							for i, k4 := range receiversList {
 								if strings.HasPrefix(k4.(string), "httpd") {
 									receiversList[i] = strings.Replace(k4.(string), "httpd", "apache", 1)

@@ -53,6 +53,7 @@ func ConfigToContainerProbe(config map[interface{}]interface{}) (*corev1.Probe, 
 	if !withService {
 		return nil, errNoService
 	}
+
 	service, withSvcProperty := serviceProperty.(map[interface{}]interface{})
 	if !withSvcProperty {
 		return nil, errServiceNotAMap
@@ -67,7 +68,9 @@ func ConfigToContainerProbe(config map[interface{}]interface{}) (*corev1.Probe, 
 	if !withExtProperty {
 		return nil, errServiceExtensionsNotSlice
 	}
+
 	healthCheckServiceExtensions := make([]string, 0)
+
 	for _, ext := range serviceExtensions {
 		parsedExt, ok := ext.(string)
 		if ok && strings.HasPrefix(parsedExt, "health_check") {
@@ -83,6 +86,7 @@ func ConfigToContainerProbe(config map[interface{}]interface{}) (*corev1.Probe, 
 	if !ok {
 		return nil, errNoExtensions
 	}
+
 	extensions, ok := extensionsProperty.(map[interface{}]interface{})
 	if !ok {
 		return nil, errExtensionsNotAMap
@@ -100,6 +104,7 @@ func ConfigToContainerProbe(config map[interface{}]interface{}) (*corev1.Probe, 
 
 func createProbeFromExtension(extension interface{}) (*corev1.Probe, error) {
 	probeCfg := extractProbeConfigurationFromExtension(extension)
+
 	return &corev1.Probe{
 		ProbeHandler: corev1.ProbeHandler{
 			HTTPGet: &corev1.HTTPGetAction{
@@ -115,6 +120,7 @@ func extractProbeConfigurationFromExtension(ext interface{}) probeConfiguration 
 	if !ok {
 		return defaultProbeConfiguration()
 	}
+
 	return probeConfiguration{
 		path: extractPathFromExtensionConfig(extensionCfg),
 		port: extractPortFromExtensionConfig(extensionCfg),
@@ -134,6 +140,7 @@ func extractPathFromExtensionConfig(cfg map[interface{}]interface{}) string {
 			return parsedPath
 		}
 	}
+
 	return defaultHealthCheckPath
 }
 
@@ -142,14 +149,17 @@ func extractPortFromExtensionConfig(cfg map[interface{}]interface{}) intstr.IntO
 	if !ok {
 		return defaultHealthCheckEndpoint()
 	}
+
 	parsedEndpoint, ok := endpoint.(string)
 	if !ok {
 		return defaultHealthCheckEndpoint()
 	}
+
 	endpointComponents := strings.Split(parsedEndpoint, ":")
 	if len(endpointComponents) != 2 {
 		return defaultHealthCheckEndpoint()
 	}
+
 	return intstr.Parse(endpointComponents[1])
 }
 

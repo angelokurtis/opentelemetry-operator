@@ -104,6 +104,7 @@ func isScraperReceiver(name string) bool {
 
 func singlePortFromConfigEndpoint(logger logr.Logger, name string, config map[interface{}]interface{}) *v1.ServicePort {
 	var endpoint interface{}
+
 	switch {
 	// syslog receiver contains the endpoint
 	// that needs to be exposed one level down inside config
@@ -161,18 +162,19 @@ func getAddressFromConfig(logger logr.Logger, name, key string, config map[inter
 		logger.V(2).Info("%s receiver doesn't have an %s", name, key)
 		return nil
 	}
+
 	return endpoint
 }
 
 func portFromEndpoint(endpoint string) (int32, error) {
 	var err error
+
 	var port int64
 
 	r := regexp.MustCompile(":[0-9]+")
 
 	if r.MatchString(endpoint) {
 		port, err = strconv.ParseInt(strings.Replace(r.FindString(endpoint), ":", "", -1), 10, 32)
-
 		if err != nil {
 			return 0, err
 		}

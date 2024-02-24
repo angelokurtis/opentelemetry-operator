@@ -25,5 +25,6 @@ func getDNSPolicy(opampBridge v1alpha1.OpAMPBridge) corev1.DNSPolicy {
 	if opampBridge.Spec.HostNetwork {
 		dnsPolicy = corev1.DNSClusterFirstWithHostNet
 	}
+
 	return dnsPolicy
 }

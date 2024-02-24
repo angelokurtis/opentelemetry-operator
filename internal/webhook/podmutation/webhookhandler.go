@@ -69,6 +69,7 @@ func NewWebhookHandler(cfg config.Config, logger logr.Logger, decoder *admission
 
 func (p *podMutationWebhook) Handle(ctx context.Context, req admission.Request) admission.Response {
 	pod := corev1.Pod{}
+
 	err := p.decoder.Decode(req, &pod)
 	if err != nil {
 		return admission.Errored(http.StatusBadRequest, err)
@@ -76,6 +77,7 @@ func (p *podMutationWebhook) Handle(ctx context.Context, req admission.Request) 
 
 	// we use the req.Namespace here because the pod might have not been created yet
 	ns := corev1.Namespace{}
+
 	err = p.client.Get(ctx, types.NamespacedName{Name: req.Namespace, Namespace: ""}, &ns)
 	if err != nil {
 		res := admission.Errored(http.StatusInternalServerError, err)
@@ -85,6 +87,7 @@ func (p *podMutationWebhook) Handle(ctx context.Context, req admission.Request) 
 		// The admission.Allowed("").WithWarnings(err.Error()) or http.StatusBadRequest does not
 		// create any event. Additionally, an event/log cannot be created explicitly because the pod name is not known.
 		res.Allowed = true
+
 		return res
 	}
 
@@ -93,6 +96,7 @@ func (p *podMutationWebhook) Handle(ctx context.Context, req admission.Request) 
 		if err != nil {
 			res := admission.Errored(http.StatusInternalServerError, err)
 			res.Allowed = true
+
 			return res
 		}
 	}
@@ -101,7 +105,9 @@ func (p *podMutationWebhook) Handle(ctx context.Context, req admission.Request) 
 	if err != nil {
 		res := admission.Errored(http.StatusInternalServerError, err)
 		res.Allowed = true
+
 		return res
 	}
+
 	return admission.PatchResponseFromRaw(req.Object.Raw, marshaledPod)
 }

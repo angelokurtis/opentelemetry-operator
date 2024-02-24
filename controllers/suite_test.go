@@ -54,7 +54,6 @@ import (
 	"github.com/open-telemetry/opentelemetry-operator/internal/manifests"
 	"github.com/open-telemetry/opentelemetry-operator/internal/manifests/collector/testdata"
 	"github.com/open-telemetry/opentelemetry-operator/internal/rbac"
-	// +kubebuilder:scaffold:imports
 )
 
 var (
@@ -94,6 +93,7 @@ func (m *mockAutoDetect) OpenShiftRoutesAvailability() (openshift.RoutesAvailabi
 	if m.OpenShiftRoutesAvailabilityFunc != nil {
 		return m.OpenShiftRoutesAvailabilityFunc()
 	}
+
 	return openshift.RoutesNotAvailable, nil
 }
 
@@ -108,6 +108,7 @@ func TestMain(m *testing.M) {
 			Paths: []string{filepath.Join("..", "config", "webhook")},
 		},
 	}
+
 	cfg, err = testEnv.Start()
 	if err != nil {
 		fmt.Printf("failed to start testEnv: %v", err)
@@ -133,6 +134,7 @@ func TestMain(m *testing.M) {
 
 	// start webhook server using Manager
 	webhookInstallOptions := &testEnv.WebhookInstallOptions
+
 	mgr, mgrErr := ctrl.NewManager(cfg, ctrl.Options{
 		Scheme:         testScheme,
 		LeaderElection: false,
@@ -149,10 +151,12 @@ func TestMain(m *testing.M) {
 		fmt.Printf("failed to start webhook server: %v", mgrErr)
 		os.Exit(1)
 	}
+
 	clientset, clientErr := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		fmt.Printf("failed to setup kubernetes clientset %v", clientErr)
 	}
+
 	reviewer := rbac.NewReviewer(clientset)
 
 	if err = v1alpha1.SetupCollectorWebhook(mgr, config.New(), reviewer); err != nil {
@@ -167,6 +171,7 @@ func TestMain(m *testing.M) {
 
 	ctx, cancel = context.WithCancel(context.TODO())
 	defer cancel()
+
 	go func() {
 		if err = mgr.Start(ctx); err != nil {
 			fmt.Printf("failed to start manager: %v", err)
@@ -177,10 +182,13 @@ func TestMain(m *testing.M) {
 	// wait for the webhook server to get ready
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
+
 	dialer := &net.Dialer{Timeout: time.Second}
 	addrPort := fmt.Sprintf("%s:%d", webhookInstallOptions.LocalServingHost, webhookInstallOptions.LocalServingPort)
+
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
+
 		if err = retry.OnError(wait.Backoff{
 			Steps:    20,
 			Duration: 10 * time.Millisecond,
@@ -225,6 +233,7 @@ func paramsWithModeAndReplicas(mode v1alpha1.Mode, replicas int32) manifests.Par
 	if err != nil {
 		fmt.Printf("Error getting yaml file: %v", err)
 	}
+
 	return manifests.Params{
 		Config: config.New(config.WithCollectorImage(defaultCollectorImage), config.WithTargetAllocatorImage(defaultTaAllocationImage)),
 		Client: k8sClient,
@@ -259,9 +268,11 @@ func paramsWithModeAndReplicas(mode v1alpha1.Mode, replicas int32) manifests.Par
 	}
 }
 
-func newParams(taContainerImage string, file string) (manifests.Params, error) {
+func newParams(taContainerImage, file string) (manifests.Params, error) {
 	replicas := int32(1)
+
 	var configYAML []byte
+
 	var err error
 
 	if file == "" {
@@ -269,6 +280,7 @@ func newParams(taContainerImage string, file string) (manifests.Params, error) {
 	} else {
 		configYAML, err = os.ReadFile(file)
 	}
+
 	if err != nil {
 		return manifests.Params{}, fmt.Errorf("Error getting yaml file: %w", err)
 	}
@@ -365,6 +377,7 @@ func paramsWithPolicy(minAvailable, maxUnavailable int32) manifests.Params {
 	}
 
 	configuration := config.New(config.WithAutoDetect(mockAutoDetector), config.WithCollectorImage(defaultCollectorImage), config.WithTargetAllocatorImage(defaultTaAllocationImage))
+
 	err = configuration.AutoDetect()
 	if err != nil {
 		logger.Error(err, "configuration.autodetect failed")
@@ -375,6 +388,7 @@ func paramsWithPolicy(minAvailable, maxUnavailable int32) manifests.Params {
 	if maxUnavailable > 0 && minAvailable > 0 {
 		fmt.Printf("worng configuration: %v", fmt.Errorf("minAvailable and maxUnavailable cannot be both set"))
 	}
+
 	if maxUnavailable > 0 {
 		pdb.MaxUnavailable = &intstr.IntOrString{
 			Type:   intstr.Int,
@@ -471,12 +485,15 @@ func opampBridgeParams() manifests.Params {
 
 func populateObjectIfExists(t testing.TB, object client.Object, namespacedName types.NamespacedName) (bool, error) {
 	t.Helper()
+
 	err := k8sClient.Get(context.Background(), namespacedName, object)
 	if errors.IsNotFound(err) {
 		return false, nil
 	}
+
 	if err != nil {
 		return false, err
 	}
+
 	return true, nil
 }

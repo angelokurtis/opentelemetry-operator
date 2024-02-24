@@ -68,7 +68,8 @@ func injectJavaagent(javaSpec v1alpha1.Java, pod corev1.Pod, index int) (corev1.
 				EmptyDir: &corev1.EmptyDirVolumeSource{
 					SizeLimit: volumeSize(javaSpec.VolumeSizeLimit),
 				},
-			}})
+			},
+		})
 
 		pod.Spec.InitContainers = append(pod.Spec.InitContainers, corev1.Container{
 			Name:      javaInitContainerName,
@@ -81,5 +82,6 @@ func injectJavaagent(javaSpec v1alpha1.Java, pod corev1.Pod, index int) (corev1.
 			}},
 		})
 	}
+
 	return pod, err
 }

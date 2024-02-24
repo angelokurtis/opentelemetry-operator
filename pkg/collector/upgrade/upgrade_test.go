@@ -118,6 +118,7 @@ func TestUpgradeUpToLatestKnownVersion(t *testing.T) {
 
 func TestVersionsShouldNotBeChanged(t *testing.T) {
 	nsn := types.NamespacedName{Name: "my-instance", Namespace: "default"}
+
 	for _, tt := range []struct {
 		desc            string
 		v               string

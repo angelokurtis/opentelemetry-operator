@@ -21,13 +21,12 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/spf13/pflag"
 	appsv1 "k8s.io/api/apps/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sruntime "k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
-
-	"github.com/spf13/pflag"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -45,6 +44,7 @@ func init() {
 
 func main() {
 	var timeout int
+
 	var kubeconfigPath string
 
 	defaultKubeconfigPath := filepath.Join(homedir.HomeDir(), ".kube", "config")
@@ -69,9 +69,11 @@ func main() {
 	}
 
 	fmt.Println("Waiting until the OpenTelemetry Operator deployment is created")
+
 	operatorDeployment := &appsv1.Deployment{}
 
 	ctx := context.Background()
+
 	err = wait.PollUntilContextTimeout(ctx, pollInterval, timeoutPoll, false, func(c context.Context) (done bool, err error) {
 		err = clusterClient.Get(
 			c,
@@ -85,12 +87,13 @@ func main() {
 			fmt.Printf("Failed to get OpenTelemetry operator deployment: %s\n", err)
 			return false, nil
 		}
+
 		return true, nil
 	})
-
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	fmt.Println("OpenTelemetry Operator deployment is created. Now checking if it if fully operational.")
 
 	// Sometimes, the deployment of the OTEL Operator is ready but, when
@@ -108,7 +111,9 @@ func main() {
 	_ = clusterClient.Delete(context.Background(), &collectorInstance)
 
 	fmt.Println("Check if the OpenTelemetry collector CR can be created.")
+
 	collectorCtx := context.Background()
+
 	err = wait.PollUntilContextTimeout(collectorCtx, pollInterval, timeoutPoll, false, func(c context.Context) (done bool, err error) {
 		err = clusterClient.Create(
 			c,
@@ -118,9 +123,9 @@ func main() {
 			fmt.Printf("failed: to create OpenTelemetry collector CR %s\n", err)
 			return false, nil
 		}
+
 		return true, nil
 	})
-
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

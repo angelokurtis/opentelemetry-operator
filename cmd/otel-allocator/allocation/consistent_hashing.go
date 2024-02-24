@@ -19,7 +19,7 @@ import (
 	"sync"
 
 	"github.com/buraksezer/consistent"
-	"github.com/cespare/xxhash/v2"
+	xxhash "github.com/cespare/xxhash/v2"
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -253,7 +253,7 @@ func (c *consistentHashingAllocator) SetCollectors(collectors map[string]*Collec
 	}
 }
 
-func (c *consistentHashingAllocator) GetTargetsForCollectorAndJob(collector string, job string) []*target.Item {
+func (c *consistentHashingAllocator) GetTargetsForCollectorAndJob(collector, job string) []*target.Item {
 	c.m.RLock()
 	defer c.m.RUnlock()
 	if _, ok := c.targetItemsPerJobPerCollector[collector]; !ok {

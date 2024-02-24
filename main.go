@@ -56,7 +56,6 @@ import (
 	"github.com/open-telemetry/opentelemetry-operator/pkg/instrumentation"
 	instrumentationupgrade "github.com/open-telemetry/opentelemetry-operator/pkg/instrumentation/upgrade"
 	"github.com/open-telemetry/opentelemetry-operator/pkg/sidecar"
-	// +kubebuilder:scaffold:imports
 )
 
 var (
@@ -79,11 +78,12 @@ func init() {
 
 // stringFlagOrEnv defines a string flag which can be set by an environment variable.
 // Precedence: flag > env var > default value.
-func stringFlagOrEnv(p *string, name string, envName string, defaultValue string, usage string) {
+func stringFlagOrEnv(p *string, name, envName, defaultValue, usage string) {
 	envValue := os.Getenv(envName)
 	if envValue != "" {
 		defaultValue = envValue
 	}
+
 	pflag.StringVar(p, name, defaultValue, usage)
 }
 
@@ -91,6 +91,7 @@ func main() {
 	// registers any flags that underlying libraries might use
 	opts := zap.Options{}
 	flagset := featuregate.Flags(colfeaturegate.GlobalRegistry())
+
 	opts.BindFlags(flag.CommandLine)
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.CommandLine.AddGoFlagSet(flagset)
@@ -188,6 +189,7 @@ func main() {
 		config.WithAutoDetect(ad),
 		config.WithLabelFilters(labelsFilter),
 	)
+
 	err = cfg.AutoDetect()
 	if err != nil {
 		setupLog.Error(err, "failed to autodetect config variables")
@@ -208,6 +210,7 @@ func main() {
 	optionsTlSOptsFuncs := []func(*tls.Config){
 		func(config *tls.Config) { tlsConfigSetting(config, tlsOpt) },
 	}
+
 	var namespaces map[string]cache.Config
 	if strings.Contains(watchNamespace, ",") {
 		namespaces = map[string]cache.Config{}
@@ -244,15 +247,18 @@ func main() {
 	}
 
 	ctx := ctrl.SetupSignalHandler()
+
 	err = addDependencies(ctx, mgr, cfg, v)
 	if err != nil {
 		setupLog.Error(err, "failed to add/run bootstrap dependencies to the controller manager")
 		os.Exit(1)
 	}
+
 	clientset, clientErr := kubernetes.NewForConfig(mgr.GetConfig())
 	if err != nil {
 		setupLog.Error(clientErr, "failed to create kubernetes clientset")
 	}
+
 	reviewer := rbac.NewReviewer(clientset)
 
 	if err = controllers.NewReconciler(controllers.Params{
@@ -282,10 +288,12 @@ func main() {
 			setupLog.Error(err, "unable to create webhook", "webhook", "OpenTelemetryCollector")
 			os.Exit(1)
 		}
+
 		if err = otelv1alpha1.SetupInstrumentationWebhook(mgr, cfg); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Instrumentation")
 			os.Exit(1)
 		}
+
 		decoder := admission.NewDecoder(mgr.GetScheme())
 		mgr.GetWebhookServer().Register("/mutate-v1-pod", &webhook.Admission{
 			Handler: podmutation.NewWebhookHandler(cfg, ctrl.Log.WithName("pod-webhook"), decoder, mgr.GetClient(),
@@ -308,12 +316,14 @@ func main() {
 		setupLog.Error(err, "unable to set up health check")
 		os.Exit(1)
 	}
+
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
 
 	setupLog.Info("starting manager")
+
 	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
@@ -329,6 +339,7 @@ func addDependencies(_ context.Context, mgr ctrl.Manager, cfg config.Config, v v
 			Client:   mgr.GetClient(),
 			Recorder: record.NewFakeRecorder(collectorupgrade.RecordBufferSize),
 		}
+
 		return up.ManagedInstances(c)
 	}))
 	if err != nil {
@@ -349,11 +360,13 @@ func addDependencies(_ context.Context, mgr ctrl.Manager, cfg config.Config, v v
 			Client:                     mgr.GetClient(),
 			Recorder:                   mgr.GetEventRecorderFor("opentelemetry-operator"),
 		}
+
 		return u.ManagedInstances(c)
 	}))
 	if err != nil {
 		return fmt.Errorf("failed to upgrade Instrumentation instances: %w", err)
 	}
+
 	return nil
 }
 
@@ -366,6 +379,7 @@ func tlsConfigSetting(cfg *tls.Config, tlsOpt tlsConfig) {
 	if err != nil {
 		setupLog.Error(err, "TLS version invalid")
 	}
+
 	cfg.MinVersion = tlsVersion
 
 	// TLSCipherSuites helper function returns a list of cipher suite IDs from the cipher suite names passed.
@@ -373,5 +387,6 @@ func tlsConfigSetting(cfg *tls.Config, tlsOpt tlsConfig) {
 	if err != nil {
 		setupLog.Error(err, "Failed to convert TLS cipher suite name to ID")
 	}
+
 	cfg.CipherSuites = cipherSuiteIDs
 }

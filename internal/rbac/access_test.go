@@ -43,13 +43,17 @@ func reactorFactory(status v1.SubjectAccessReviewStatus, mockErr error) fakeClie
 			if !action.Matches(createVerb, sarResource) {
 				return false, nil, fmt.Errorf("must be a create for a SAR")
 			}
+
 			sar, ok := action.(kubeTesting.CreateAction).GetObject().DeepCopyObject().(*v1.SubjectAccessReview)
 			if !ok || sar == nil {
 				return false, nil, fmt.Errorf("bad object")
 			}
+
 			sar.Status = status
+
 			return true, sar, mockErr
 		})
+
 		return c
 	}
 }
@@ -60,6 +64,7 @@ func TestReviewer_CanAccess(t *testing.T) {
 		serviceAccountNamespace string
 		res                     *v1.ResourceAttributes
 	}
+
 	tests := []struct {
 		name            string
 		clientGenerator fakeClientGenerator
@@ -120,11 +125,13 @@ func TestReviewer_CanAccess(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := NewReviewer(tt.clientGenerator())
+
 			got, err := r.CanAccess(context.Background(), tt.args.serviceAccount, tt.args.serviceAccountNamespace, tt.args.res, nil)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CanAccess() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if got.Status.Denied && got.Status.Denied != !tt.want {
 				assert.Equal(t, tt.want, got.Status.Denied)
 			} else if got.Status.Allowed != tt.want {
@@ -140,6 +147,7 @@ func TestReviewer_CheckPolicyRules(t *testing.T) {
 		serviceAccountNamespace string
 		policyRules             []*rbacv1.PolicyRule
 	}
+
 	tests := []struct {
 		name             string
 		clientGenerator  fakeClientGenerator
@@ -222,13 +230,16 @@ func TestReviewer_CheckPolicyRules(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := NewReviewer(tt.clientGenerator())
+
 			got, err := r.CheckPolicyRules(context.Background(), tt.args.serviceAccount, tt.args.serviceAccountNamespace, tt.args.policyRules...)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CheckPolicyRules() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			ok, deniedReviews := AllSubjectAccessReviewsAllowed(got)
 			assert.Equal(t, tt.want, ok)
+
 			if !ok {
 				assert.Equal(t, tt.numFailedReviews, len(deniedReviews))
 			}

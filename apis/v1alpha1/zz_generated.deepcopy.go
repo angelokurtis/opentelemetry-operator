@@ -36,20 +36,25 @@ func (in *ApacheHttpd) DeepCopyInto(out *ApacheHttpd) {
 		x := (*in).DeepCopy()
 		*out = &x
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Attrs != nil {
 		in, out := &in.Attrs, &out.Attrs
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	in.Resources.DeepCopyInto(&out.Resources)
 }
 
@@ -58,8 +63,10 @@ func (in *ApacheHttpd) DeepCopy() *ApacheHttpd {
 	if in == nil {
 		return nil
 	}
+
 	out := new(ApacheHttpd)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -71,28 +78,34 @@ func (in *AutoscalerSpec) DeepCopyInto(out *AutoscalerSpec) {
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.MaxReplicas != nil {
 		in, out := &in.MaxReplicas, &out.MaxReplicas
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.Behavior != nil {
 		in, out := &in.Behavior, &out.Behavior
 		*out = new(v2.HorizontalPodAutoscalerBehavior)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.Metrics != nil {
 		in, out := &in.Metrics, &out.Metrics
 		*out = make([]MetricSpec, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.TargetCPUUtilization != nil {
 		in, out := &in.TargetCPUUtilization, &out.TargetCPUUtilization
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.TargetMemoryUtilization != nil {
 		in, out := &in.TargetMemoryUtilization, &out.TargetMemoryUtilization
 		*out = new(int32)
@@ -105,8 +118,10 @@ func (in *AutoscalerSpec) DeepCopy() *AutoscalerSpec {
 	if in == nil {
 		return nil
 	}
+
 	out := new(AutoscalerSpec)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -120,8 +135,10 @@ func (in *ConfigMapsSpec) DeepCopy() *ConfigMapsSpec {
 	if in == nil {
 		return nil
 	}
+
 	out := new(ConfigMapsSpec)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -133,13 +150,16 @@ func (in *DotNet) DeepCopyInto(out *DotNet) {
 		x := (*in).DeepCopy()
 		*out = &x
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	in.Resources.DeepCopyInto(&out.Resources)
 }
 
@@ -148,8 +168,10 @@ func (in *DotNet) DeepCopy() *DotNet {
 	if in == nil {
 		return nil
 	}
+
 	out := new(DotNet)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -163,8 +185,10 @@ func (in *Exporter) DeepCopy() *Exporter {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Exporter)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -176,13 +200,16 @@ func (in *Go) DeepCopyInto(out *Go) {
 		x := (*in).DeepCopy()
 		*out = &x
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	in.Resources.DeepCopyInto(&out.Resources)
 }
 
@@ -191,8 +218,10 @@ func (in *Go) DeepCopy() *Go {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Go)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -202,22 +231,27 @@ func (in *Ingress) DeepCopyInto(out *Ingress) {
 	if in.Annotations != nil {
 		in, out := &in.Annotations, &out.Annotations
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	if in.TLS != nil {
 		in, out := &in.TLS, &out.TLS
 		*out = make([]networkingv1.IngressTLS, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.IngressClassName != nil {
 		in, out := &in.IngressClassName, &out.IngressClassName
 		*out = new(string)
 		**out = **in
 	}
+
 	out.Route = in.Route
 }
 
@@ -226,8 +260,10 @@ func (in *Ingress) DeepCopy() *Ingress {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Ingress)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -245,8 +281,10 @@ func (in *Instrumentation) DeepCopy() *Instrumentation {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Instrumentation)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -255,6 +293,7 @@ func (in *Instrumentation) DeepCopyObject() runtime.Object {
 	if c := in.DeepCopy(); c != nil {
 		return c
 	}
+
 	return nil
 }
 
@@ -263,9 +302,11 @@ func (in *InstrumentationList) DeepCopyInto(out *InstrumentationList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
+
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]Instrumentation, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -277,8 +318,10 @@ func (in *InstrumentationList) DeepCopy() *InstrumentationList {
 	if in == nil {
 		return nil
 	}
+
 	out := new(InstrumentationList)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -287,6 +330,7 @@ func (in *InstrumentationList) DeepCopyObject() runtime.Object {
 	if c := in.DeepCopy(); c != nil {
 		return c
 	}
+
 	return nil
 }
 
@@ -295,19 +339,23 @@ func (in *InstrumentationSpec) DeepCopyInto(out *InstrumentationSpec) {
 	*out = *in
 	out.Exporter = in.Exporter
 	in.Resource.DeepCopyInto(&out.Resource)
+
 	if in.Propagators != nil {
 		in, out := &in.Propagators, &out.Propagators
 		*out = make([]Propagator, len(*in))
 		copy(*out, *in)
 	}
+
 	out.Sampler = in.Sampler
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	in.Java.DeepCopyInto(&out.Java)
 	in.NodeJS.DeepCopyInto(&out.NodeJS)
 	in.Python.DeepCopyInto(&out.Python)
@@ -322,8 +370,10 @@ func (in *InstrumentationSpec) DeepCopy() *InstrumentationSpec {
 	if in == nil {
 		return nil
 	}
+
 	out := new(InstrumentationSpec)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -337,8 +387,10 @@ func (in *InstrumentationStatus) DeepCopy() *InstrumentationStatus {
 	if in == nil {
 		return nil
 	}
+
 	out := new(InstrumentationStatus)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -350,13 +402,16 @@ func (in *Java) DeepCopyInto(out *Java) {
 		x := (*in).DeepCopy()
 		*out = &x
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	in.Resources.DeepCopyInto(&out.Resources)
 }
 
@@ -365,8 +420,10 @@ func (in *Java) DeepCopy() *Java {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Java)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -385,8 +442,10 @@ func (in *MetricSpec) DeepCopy() *MetricSpec {
 	if in == nil {
 		return nil
 	}
+
 	out := new(MetricSpec)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -400,8 +459,10 @@ func (in *MetricsConfigSpec) DeepCopy() *MetricsConfigSpec {
 	if in == nil {
 		return nil
 	}
+
 	out := new(MetricsConfigSpec)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -413,20 +474,25 @@ func (in *Nginx) DeepCopyInto(out *Nginx) {
 		x := (*in).DeepCopy()
 		*out = &x
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Attrs != nil {
 		in, out := &in.Attrs, &out.Attrs
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	in.Resources.DeepCopyInto(&out.Resources)
 }
 
@@ -435,8 +501,10 @@ func (in *Nginx) DeepCopy() *Nginx {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Nginx)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -448,13 +516,16 @@ func (in *NodeJS) DeepCopyInto(out *NodeJS) {
 		x := (*in).DeepCopy()
 		*out = &x
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	in.Resources.DeepCopyInto(&out.Resources)
 }
 
@@ -463,8 +534,10 @@ func (in *NodeJS) DeepCopy() *NodeJS {
 	if in == nil {
 		return nil
 	}
+
 	out := new(NodeJS)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -479,8 +552,10 @@ func (in *ObservabilitySpec) DeepCopy() *ObservabilitySpec {
 	if in == nil {
 		return nil
 	}
+
 	out := new(ObservabilitySpec)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -498,8 +573,10 @@ func (in *OpAMPBridge) DeepCopy() *OpAMPBridge {
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpAMPBridge)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -508,6 +585,7 @@ func (in *OpAMPBridge) DeepCopyObject() runtime.Object {
 	if c := in.DeepCopy(); c != nil {
 		return c
 	}
+
 	return nil
 }
 
@@ -516,9 +594,11 @@ func (in *OpAMPBridgeList) DeepCopyInto(out *OpAMPBridgeList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
+
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]OpAMPBridge, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -530,8 +610,10 @@ func (in *OpAMPBridgeList) DeepCopy() *OpAMPBridgeList {
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpAMPBridgeList)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -540,6 +622,7 @@ func (in *OpAMPBridgeList) DeepCopyObject() runtime.Object {
 	if c := in.DeepCopy(); c != nil {
 		return c
 	}
+
 	return nil
 }
 
@@ -549,22 +632,28 @@ func (in *OpAMPBridgeSpec) DeepCopyInto(out *OpAMPBridgeSpec) {
 	if in.Headers != nil {
 		in, out := &in.Headers, &out.Headers
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	if in.Capabilities != nil {
 		in, out := &in.Capabilities, &out.Capabilities
 		*out = make(map[OpAMPBridgeCapability]bool, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	if in.ComponentsAllowed != nil {
 		in, out := &in.ComponentsAllowed, &out.ComponentsAllowed
 		*out = make(map[string][]string, len(*in))
+
 		for key, val := range *in {
 			var outVal []string
+
 			if val == nil {
 				(*out)[key] = nil
 			} else {
@@ -572,89 +661,113 @@ func (in *OpAMPBridgeSpec) DeepCopyInto(out *OpAMPBridgeSpec) {
 				*out = make([]string, len(*in))
 				copy(*out, *in)
 			}
+
 			(*out)[key] = outVal
 		}
 	}
+
 	in.Resources.DeepCopyInto(&out.Resources)
+
 	if in.NodeSelector != nil {
 		in, out := &in.NodeSelector, &out.NodeSelector
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	if in.Replicas != nil {
 		in, out := &in.Replicas, &out.Replicas
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.SecurityContext != nil {
 		in, out := &in.SecurityContext, &out.SecurityContext
 		*out = new(v1.SecurityContext)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.PodSecurityContext != nil {
 		in, out := &in.PodSecurityContext, &out.PodSecurityContext
 		*out = new(v1.PodSecurityContext)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.PodAnnotations != nil {
 		in, out := &in.PodAnnotations, &out.PodAnnotations
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	if in.VolumeMounts != nil {
 		in, out := &in.VolumeMounts, &out.VolumeMounts
 		*out = make([]v1.VolumeMount, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Ports != nil {
 		in, out := &in.Ports, &out.Ports
 		*out = make([]v1.ServicePort, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.EnvFrom != nil {
 		in, out := &in.EnvFrom, &out.EnvFrom
 		*out = make([]v1.EnvFromSource, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Tolerations != nil {
 		in, out := &in.Tolerations, &out.Tolerations
 		*out = make([]v1.Toleration, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Volumes != nil {
 		in, out := &in.Volumes, &out.Volumes
 		*out = make([]v1.Volume, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Affinity != nil {
 		in, out := &in.Affinity, &out.Affinity
 		*out = new(v1.Affinity)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.TopologySpreadConstraints != nil {
 		in, out := &in.TopologySpreadConstraints, &out.TopologySpreadConstraints
 		*out = make([]v1.TopologySpreadConstraint, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -666,8 +779,10 @@ func (in *OpAMPBridgeSpec) DeepCopy() *OpAMPBridgeSpec {
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpAMPBridgeSpec)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -681,8 +796,10 @@ func (in *OpAMPBridgeStatus) DeepCopy() *OpAMPBridgeStatus {
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpAMPBridgeStatus)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -696,8 +813,10 @@ func (in *OpenShiftRoute) DeepCopy() *OpenShiftRoute {
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpenShiftRoute)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -715,8 +834,10 @@ func (in *OpenTelemetryCollector) DeepCopy() *OpenTelemetryCollector {
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpenTelemetryCollector)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -725,6 +846,7 @@ func (in *OpenTelemetryCollector) DeepCopyObject() runtime.Object {
 	if c := in.DeepCopy(); c != nil {
 		return c
 	}
+
 	return nil
 }
 
@@ -733,9 +855,11 @@ func (in *OpenTelemetryCollectorList) DeepCopyInto(out *OpenTelemetryCollectorLi
 	*out = *in
 	out.TypeMeta = in.TypeMeta
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
+
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]OpenTelemetryCollector, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -747,8 +871,10 @@ func (in *OpenTelemetryCollectorList) DeepCopy() *OpenTelemetryCollectorList {
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpenTelemetryCollectorList)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -757,6 +883,7 @@ func (in *OpenTelemetryCollectorList) DeepCopyObject() runtime.Object {
 	if c := in.DeepCopy(); c != nil {
 		return c
 	}
+
 	return nil
 }
 
@@ -764,160 +891,201 @@ func (in *OpenTelemetryCollectorList) DeepCopyObject() runtime.Object {
 func (in *OpenTelemetryCollectorSpec) DeepCopyInto(out *OpenTelemetryCollectorSpec) {
 	*out = *in
 	in.Resources.DeepCopyInto(&out.Resources)
+
 	if in.NodeSelector != nil {
 		in, out := &in.NodeSelector, &out.NodeSelector
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	if in.Args != nil {
 		in, out := &in.Args, &out.Args
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	if in.Replicas != nil {
 		in, out := &in.Replicas, &out.Replicas
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.MinReplicas != nil {
 		in, out := &in.MinReplicas, &out.MinReplicas
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.MaxReplicas != nil {
 		in, out := &in.MaxReplicas, &out.MaxReplicas
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.Autoscaler != nil {
 		in, out := &in.Autoscaler, &out.Autoscaler
 		*out = new(AutoscalerSpec)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.PodDisruptionBudget != nil {
 		in, out := &in.PodDisruptionBudget, &out.PodDisruptionBudget
 		*out = new(PodDisruptionBudgetSpec)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.SecurityContext != nil {
 		in, out := &in.SecurityContext, &out.SecurityContext
 		*out = new(v1.SecurityContext)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.PodSecurityContext != nil {
 		in, out := &in.PodSecurityContext, &out.PodSecurityContext
 		*out = new(v1.PodSecurityContext)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.PodAnnotations != nil {
 		in, out := &in.PodAnnotations, &out.PodAnnotations
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	in.TargetAllocator.DeepCopyInto(&out.TargetAllocator)
+
 	if in.VolumeMounts != nil {
 		in, out := &in.VolumeMounts, &out.VolumeMounts
 		*out = make([]v1.VolumeMount, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Ports != nil {
 		in, out := &in.Ports, &out.Ports
 		*out = make([]v1.ServicePort, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.EnvFrom != nil {
 		in, out := &in.EnvFrom, &out.EnvFrom
 		*out = make([]v1.EnvFromSource, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.VolumeClaimTemplates != nil {
 		in, out := &in.VolumeClaimTemplates, &out.VolumeClaimTemplates
 		*out = make([]v1.PersistentVolumeClaim, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Tolerations != nil {
 		in, out := &in.Tolerations, &out.Tolerations
 		*out = make([]v1.Toleration, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Volumes != nil {
 		in, out := &in.Volumes, &out.Volumes
 		*out = make([]v1.Volume, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	in.Ingress.DeepCopyInto(&out.Ingress)
+
 	if in.Affinity != nil {
 		in, out := &in.Affinity, &out.Affinity
 		*out = new(v1.Affinity)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.Lifecycle != nil {
 		in, out := &in.Lifecycle, &out.Lifecycle
 		*out = new(v1.Lifecycle)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.TerminationGracePeriodSeconds != nil {
 		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
 		*out = new(int64)
 		**out = **in
 	}
+
 	if in.LivenessProbe != nil {
 		in, out := &in.LivenessProbe, &out.LivenessProbe
 		*out = new(Probe)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.InitContainers != nil {
 		in, out := &in.InitContainers, &out.InitContainers
 		*out = make([]v1.Container, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.AdditionalContainers != nil {
 		in, out := &in.AdditionalContainers, &out.AdditionalContainers
 		*out = make([]v1.Container, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	out.Observability = in.Observability
 	if in.TopologySpreadConstraints != nil {
 		in, out := &in.TopologySpreadConstraints, &out.TopologySpreadConstraints
 		*out = make([]v1.TopologySpreadConstraint, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.ConfigMaps != nil {
 		in, out := &in.ConfigMaps, &out.ConfigMaps
 		*out = make([]ConfigMapsSpec, len(*in))
 		copy(*out, *in)
 	}
+
 	in.UpdateStrategy.DeepCopyInto(&out.UpdateStrategy)
 }
 
@@ -926,8 +1094,10 @@ func (in *OpenTelemetryCollectorSpec) DeepCopy() *OpenTelemetryCollectorSpec {
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpenTelemetryCollectorSpec)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -935,6 +1105,7 @@ func (in *OpenTelemetryCollectorSpec) DeepCopy() *OpenTelemetryCollectorSpec {
 func (in *OpenTelemetryCollectorStatus) DeepCopyInto(out *OpenTelemetryCollectorStatus) {
 	*out = *in
 	out.Scale = in.Scale
+
 	if in.Messages != nil {
 		in, out := &in.Messages, &out.Messages
 		*out = make([]string, len(*in))
@@ -947,8 +1118,10 @@ func (in *OpenTelemetryCollectorStatus) DeepCopy() *OpenTelemetryCollectorStatus
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpenTelemetryCollectorStatus)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -960,46 +1133,59 @@ func (in *OpenTelemetryTargetAllocator) DeepCopyInto(out *OpenTelemetryTargetAll
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.NodeSelector != nil {
 		in, out := &in.NodeSelector, &out.NodeSelector
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	in.Resources.DeepCopyInto(&out.Resources)
+
 	if in.Affinity != nil {
 		in, out := &in.Affinity, &out.Affinity
 		*out = new(v1.Affinity)
 		(*in).DeepCopyInto(*out)
 	}
+
 	in.PrometheusCR.DeepCopyInto(&out.PrometheusCR)
+
 	if in.SecurityContext != nil {
 		in, out := &in.SecurityContext, &out.SecurityContext
 		*out = new(v1.PodSecurityContext)
 		(*in).DeepCopyInto(*out)
 	}
+
 	if in.TopologySpreadConstraints != nil {
 		in, out := &in.TopologySpreadConstraints, &out.TopologySpreadConstraints
 		*out = make([]v1.TopologySpreadConstraint, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Tolerations != nil {
 		in, out := &in.Tolerations, &out.Tolerations
 		*out = make([]v1.Toleration, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	out.Observability = in.Observability
 	if in.PodDisruptionBudget != nil {
 		in, out := &in.PodDisruptionBudget, &out.PodDisruptionBudget
@@ -1013,8 +1199,10 @@ func (in *OpenTelemetryTargetAllocator) DeepCopy() *OpenTelemetryTargetAllocator
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpenTelemetryTargetAllocator)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -1026,16 +1214,20 @@ func (in *OpenTelemetryTargetAllocatorPrometheusCR) DeepCopyInto(out *OpenTeleme
 		*out = new(metav1.Duration)
 		**out = **in
 	}
+
 	if in.PodMonitorSelector != nil {
 		in, out := &in.PodMonitorSelector, &out.PodMonitorSelector
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
 	}
+
 	if in.ServiceMonitorSelector != nil {
 		in, out := &in.ServiceMonitorSelector, &out.ServiceMonitorSelector
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
@@ -1047,8 +1239,10 @@ func (in *OpenTelemetryTargetAllocatorPrometheusCR) DeepCopy() *OpenTelemetryTar
 	if in == nil {
 		return nil
 	}
+
 	out := new(OpenTelemetryTargetAllocatorPrometheusCR)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -1060,6 +1254,7 @@ func (in *PodDisruptionBudgetSpec) DeepCopyInto(out *PodDisruptionBudgetSpec) {
 		*out = new(intstr.IntOrString)
 		**out = **in
 	}
+
 	if in.MaxUnavailable != nil {
 		in, out := &in.MaxUnavailable, &out.MaxUnavailable
 		*out = new(intstr.IntOrString)
@@ -1072,8 +1267,10 @@ func (in *PodDisruptionBudgetSpec) DeepCopy() *PodDisruptionBudgetSpec {
 	if in == nil {
 		return nil
 	}
+
 	out := new(PodDisruptionBudgetSpec)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -1085,26 +1282,31 @@ func (in *Probe) DeepCopyInto(out *Probe) {
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
 		*out = new(int32)
 		**out = **in
 	}
+
 	if in.TerminationGracePeriodSeconds != nil {
 		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
 		*out = new(int64)
@@ -1117,8 +1319,10 @@ func (in *Probe) DeepCopy() *Probe {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Probe)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -1130,13 +1334,16 @@ func (in *Python) DeepCopyInto(out *Python) {
 		x := (*in).DeepCopy()
 		*out = &x
 	}
+
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
+
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+
 	in.Resources.DeepCopyInto(&out.Resources)
 }
 
@@ -1145,8 +1352,10 @@ func (in *Python) DeepCopy() *Python {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Python)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -1156,6 +1365,7 @@ func (in *Resource) DeepCopyInto(out *Resource) {
 	if in.Attributes != nil {
 		in, out := &in.Attributes, &out.Attributes
 		*out = make(map[string]string, len(*in))
+
 		for key, val := range *in {
 			(*out)[key] = val
 		}
@@ -1167,8 +1377,10 @@ func (in *Resource) DeepCopy() *Resource {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Resource)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -1182,8 +1394,10 @@ func (in *Sampler) DeepCopy() *Sampler {
 	if in == nil {
 		return nil
 	}
+
 	out := new(Sampler)
 	in.DeepCopyInto(out)
+
 	return out
 }
 
@@ -1197,7 +1411,9 @@ func (in *ScaleSubresourceStatus) DeepCopy() *ScaleSubresourceStatus {
 	if in == nil {
 		return nil
 	}
+
 	out := new(ScaleSubresourceStatus)
 	in.DeepCopyInto(out)
+
 	return out
 }

@@ -18,14 +18,13 @@ import (
 	"fmt"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 	"github.com/open-telemetry/opentelemetry-operator/internal/manifests/collector/adapters"
 )
 
 func upgrade0_57_2(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (*v1alpha1.OpenTelemetryCollector, error) {
-
 	if len(otelcol.Spec.Config) == 0 {
 		return otelcol, nil
 	}
@@ -35,7 +34,7 @@ func upgrade0_57_2(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 		return otelcol, fmt.Errorf("couldn't upgrade to v0.57.2, failed to parse configuration: %w", err)
 	}
 
-	//Remove deprecated port field from config. (https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/10853)
+	// Remove deprecated port field from config. (https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/10853)
 	extensionsConfig, ok := otelCfg["extensions"].(map[interface{}]interface{})
 	if !ok {
 		// In case there is no extensions config.
@@ -52,6 +51,7 @@ func upgrade0_57_2(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 					delete(extensions, "port")
 
 					otelCfg["extensions"] = extensionsConfig
+
 					res, err := yaml.Marshal(otelCfg)
 					if err != nil {
 						return otelcol, fmt.Errorf("couldn't upgrade to v0.57.2, failed to marshall back configuration: %w", err)
@@ -65,5 +65,6 @@ func upgrade0_57_2(u VersionUpgrade, otelcol *v1alpha1.OpenTelemetryCollector) (
 			}
 		}
 	}
+
 	return otelcol, nil
 }

@@ -329,7 +329,6 @@ func TestDiscovery_ScrapeConfigHashing(t *testing.T) {
 				assert.Equal(t, lastValidHash, manager.scrapeConfigsHash)
 				assert.Equal(t, lastValidConfig, scu.mockCfg)
 			}
-
 		})
 	}
 }

@@ -74,21 +74,27 @@ func ConfigToComponentPorts(logger logr.Logger, cType ComponentType, config map[
 	}
 
 	ports := []corev1.ServicePort{}
+
 	for key, val := range components {
 		// This check will pass only the enabled components,
 		// then only the related ports will be opened.
 		if !compEnabled[key] {
 			continue
 		}
+
 		exporter, ok := val.(map[interface{}]interface{})
 		if !ok {
 			logger.V(2).Info("component doesn't seem to be a map of properties", cType.String(), key)
+
 			exporter = map[interface{}]interface{}{}
 		}
 
 		cmptName := key.(string)
+
 		var cmptParser parser.ComponentPortParser
+
 		var err error
+
 		switch cType {
 		case ComponentTypeExporter:
 			cmptParser, err = exporterParser.For(logger, cmptName, exporter)
@@ -148,16 +154,21 @@ func ConfigToMetricsPort(logger logr.Logger, config map[interface{}]interface{})
 	type metricsCfg struct {
 		Address string
 	}
+
 	type telemetryCfg struct {
 		Metrics metricsCfg
 	}
+
 	type serviceCfg struct {
 		Telemetry telemetryCfg
 	}
+
 	type cfg struct {
 		Service serviceCfg
 	}
+
 	var cOut cfg
+
 	err := mapstructure.Decode(config, &cOut)
 	if err != nil {
 		return 0, err
@@ -169,6 +180,7 @@ func ConfigToMetricsPort(logger logr.Logger, config map[interface{}]interface{})
 	} else if netErr != nil {
 		return 0, netErr
 	}
+
 	i64, err := strconv.ParseInt(port, 10, 32)
 	if err != nil {
 		return 0, err

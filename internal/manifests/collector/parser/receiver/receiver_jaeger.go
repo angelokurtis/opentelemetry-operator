@@ -95,6 +95,7 @@ func (j *JaegerReceiverParser) Ports() ([]corev1.ServicePort, error) {
 		if receiverProtocol, ok := j.config[protocol.name]; ok {
 			// we have the specified protocol, we definitely need a service port
 			nameWithProtocol := fmt.Sprintf("%s-%s", j.name, protocol.name)
+
 			var protocolPort *corev1.ServicePort
 
 			// do we have a configuration block for the protocol?

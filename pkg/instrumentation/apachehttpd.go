@@ -60,7 +60,6 @@ const (
 */
 
 func injectApacheHttpdagent(_ logr.Logger, apacheSpec v1alpha1.ApacheHttpd, pod corev1.Pod, index int, otlpEndpoint string, resourceMap map[string]string) corev1.Pod {
-
 	// caller checks if there is at least one container
 	container := &pod.Spec.Containers[index]
 
@@ -82,7 +81,8 @@ func injectApacheHttpdagent(_ logr.Logger, apacheSpec v1alpha1.ApacheHttpd, pod 
 				EmptyDir: &corev1.EmptyDirVolumeSource{
 					SizeLimit: volumeSize(apacheSpec.VolumeSizeLimit),
 				},
-			}})
+			},
+		})
 
 		apacheConfDir := getApacheConfDir(apacheSpec.ConfigPath)
 
@@ -107,12 +107,14 @@ func injectApacheHttpdagent(_ logr.Logger, apacheSpec v1alpha1.ApacheHttpd, pod 
 		// drop volume mount with volume-provided Apache config from original container
 		// since it could over-write configuration provided by the injection
 		idxFound := -1
+
 		for idx, volume := range container.VolumeMounts {
 			if strings.Contains(volume.MountPath, apacheConfDir) { // potentially passes config, which we want to pass to init copy only
 				idxFound = idx
 				break
 			}
 		}
+
 		if idxFound >= 0 {
 			volumeMounts := container.VolumeMounts
 			volumeMounts = append(volumeMounts[:idxFound], volumeMounts[idxFound+1:]...)
@@ -141,7 +143,8 @@ func injectApacheHttpdagent(_ logr.Logger, apacheSpec v1alpha1.ApacheHttpd, pod 
 				EmptyDir: &corev1.EmptyDirVolumeSource{
 					SizeLimit: volumeSize(apacheSpec.VolumeSizeLimit),
 				},
-			}})
+			},
+		})
 
 		pod.Spec.InitContainers = append(pod.Spec.InitContainers, corev1.Container{
 			Name:    apacheAgentInitContainerName,
@@ -164,7 +167,8 @@ func injectApacheHttpdagent(_ logr.Logger, apacheSpec v1alpha1.ApacheHttpd, pod 
 					Name:  apacheAttributesEnvVar,
 					Value: getApacheOtelConfig(pod, apacheSpec, index, otlpEndpoint, resourceMap),
 				},
-				{Name: apacheServiceInstanceIdEnvVar,
+				{
+					Name: apacheServiceInstanceIdEnvVar,
 					ValueFrom: &corev1.EnvVarSource{
 						FieldRef: &corev1.ObjectFieldSelector{
 							FieldPath: "metadata.name",
@@ -196,6 +200,7 @@ func isApacheInitContainerMissing(pod corev1.Pod, containerName string) bool {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -219,17 +224,19 @@ LoadFile %[1]s/sdk_lib/lib/libopentelemetry_webserver_sdk.so
 LoadModule otel_apache_module %[1]s/WebServerModule/Apache/libmod_apache_otel%[2]s.so
 #Attributes
 `
+
 	if otelEndpoint == "" {
 		otelEndpoint = "http://localhost:4317/"
 	}
+
 	serviceName := chooseServiceName(pod, resourceMap, index)
+
 	serviceNamespace := pod.GetNamespace()
 	if len(serviceNamespace) == 0 {
 		serviceNamespace = resourceMap[string(semconv.K8SNamespaceNameKey)]
 		if len(serviceNamespace) == 0 {
 			serviceNamespace = "apache-httpd"
 		}
-
 	}
 	// Namespace name override TBD
 
@@ -266,6 +273,7 @@ LoadModule otel_apache_module %[1]s/WebServerModule/Apache/libmod_apache_otel%[2
 	for key := range attrMap {
 		keys = append(keys, key)
 	}
+
 	sort.Strings(keys)
 
 	for _, key := range keys {
@@ -283,5 +291,6 @@ func getApacheConfDir(configuredDir string) string {
 			apacheConfDir = apacheConfDir[:len(apacheConfDir)-1]
 		}
 	}
+
 	return apacheConfDir
 }

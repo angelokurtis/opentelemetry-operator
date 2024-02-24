@@ -30,7 +30,7 @@ import (
 	"github.com/prometheus/prometheus/model/relabel"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/open-telemetry/opentelemetry-operator/cmd/otel-allocator/allocation"
@@ -518,7 +518,8 @@ func TestServer_JobHandler(t *testing.T) {
 				"b": target.NewItem("job2", "", model.LabelSet{}, ""),
 				"c": target.NewItem("job3", "", model.LabelSet{}, ""),
 				"d": target.NewItem("job3", "", model.LabelSet{}, ""),
-				"e": target.NewItem("job3", "", model.LabelSet{}, "")},
+				"e": target.NewItem("job3", "", model.LabelSet{}, ""),
+			},
 			expectedCode: http.StatusOK,
 			expectedJobs: map[string]target.LinkJSON{
 				"job1": newLink("job1"),
@@ -548,6 +549,7 @@ func TestServer_JobHandler(t *testing.T) {
 		})
 	}
 }
+
 func TestServer_Readiness(t *testing.T) {
 	tests := []struct {
 		description   string

@@ -42,10 +42,12 @@ func Ingress(params manifests.Params) (*networkingv1.Ingress, error) {
 			"instance.name", params.OtelCol.Name,
 			"instance.namespace", params.OtelCol.Namespace,
 		)
+
 		return nil, err
 	}
 
 	var rules []networkingv1.IngressRule
+
 	switch params.OtelCol.Spec.Ingress.RuleType {
 	case v1alpha1.IngressRuleTypePath, "":
 		rules = []networkingv1.IngressRule{createPathIngressRules(params.OtelCol.Name, params.OtelCol.Spec.Ingress.Hostname, ports)}
@@ -72,9 +74,10 @@ func Ingress(params manifests.Params) (*networkingv1.Ingress, error) {
 	}, nil
 }
 
-func createPathIngressRules(otelcol string, hostname string, ports []corev1.ServicePort) networkingv1.IngressRule {
+func createPathIngressRules(otelcol, hostname string, ports []corev1.ServicePort) networkingv1.IngressRule {
 	pathType := networkingv1.PathTypePrefix
 	paths := make([]networkingv1.HTTPIngressPath, len(ports))
+
 	for i, port := range ports {
 		portName := naming.PortName(port.Name, port.Port)
 		paths[i] = networkingv1.HTTPIngressPath{
@@ -90,6 +93,7 @@ func createPathIngressRules(otelcol string, hostname string, ports []corev1.Serv
 			},
 		}
 	}
+
 	return networkingv1.IngressRule{
 		Host: hostname,
 		IngressRuleValue: networkingv1.IngressRuleValue{
@@ -100,9 +104,11 @@ func createPathIngressRules(otelcol string, hostname string, ports []corev1.Serv
 	}
 }
 
-func createSubdomainIngressRules(otelcol string, hostname string, ports []corev1.ServicePort) []networkingv1.IngressRule {
+func createSubdomainIngressRules(otelcol, hostname string, ports []corev1.ServicePort) []networkingv1.IngressRule {
 	var rules []networkingv1.IngressRule
+
 	pathType := networkingv1.PathTypePrefix
+
 	for _, port := range ports {
 		portName := naming.PortName(port.Name, port.Port)
 
@@ -111,6 +117,7 @@ func createSubdomainIngressRules(otelcol string, hostname string, ports []corev1
 		if hostname == "" || hostname == "*" {
 			host = portName
 		}
+
 		rules = append(rules, networkingv1.IngressRule{
 			Host: host,
 			IngressRuleValue: networkingv1.IngressRuleValue{
@@ -133,6 +140,7 @@ func createSubdomainIngressRules(otelcol string, hostname string, ports []corev1
 			},
 		})
 	}
+
 	return rules
 }
 
@@ -158,13 +166,17 @@ func servicePortsFromCfg(logger logr.Logger, otelcol v1alpha1.OpenTelemetryColle
 		// in the first case, we remove the port we inferred from the list
 		// in the second case, we rename our inferred port to something like "port-%d"
 		portNumbers, portNames := extractPortNumbersAndNames(otelcol.Spec.Ports)
+
 		var resultingInferredPorts []corev1.ServicePort
+
 		for _, inferred := range ports {
 			if filtered := filterPort(logger, inferred, portNumbers, portNames); filtered != nil {
 				resultingInferredPorts = append(resultingInferredPorts, *filtered)
 			}
 		}
+
 		ports = append(otelcol.Spec.Ports, resultingInferredPorts...)
 	}
+
 	return ports, err
 }

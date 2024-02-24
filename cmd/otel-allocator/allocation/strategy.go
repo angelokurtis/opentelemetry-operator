@@ -95,7 +95,7 @@ type Allocator interface {
 	SetTargets(targets map[string]*target.Item)
 	TargetItems() map[string]*target.Item
 	Collectors() map[string]*Collector
-	GetTargetsForCollectorAndJob(collector string, job string) []*target.Item
+	GetTargetsForCollectorAndJob(collector, job string) []*target.Item
 	SetFilter(filter Filter)
 }
 

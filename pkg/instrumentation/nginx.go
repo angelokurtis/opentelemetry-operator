@@ -63,7 +63,6 @@ const (
 */
 
 func injectNginxSDK(_ logr.Logger, nginxSpec v1alpha1.Nginx, pod corev1.Pod, index int, otlpEndpoint string, resourceMap map[string]string) corev1.Pod {
-
 	// caller checks if there is at least one container
 	container := &pod.Spec.Containers[index]
 
@@ -83,7 +82,8 @@ func injectNginxSDK(_ logr.Logger, nginxSpec v1alpha1.Nginx, pod corev1.Pod, ind
 			Name: nginxAgentConfigVolume,
 			VolumeSource: corev1.VolumeSource{
 				EmptyDir: &corev1.EmptyDirVolumeSource{},
-			}})
+			},
+		})
 
 		nginxConfFile := getNginxConfFile(nginxSpec.ConfigFile)
 		nginxConfDir := getNginxConfDir(nginxSpec.ConfigFile)
@@ -93,8 +93,7 @@ func injectNginxSDK(_ logr.Logger, nginxSpec v1alpha1.Nginx, pod corev1.Pod, ind
 		// 2) version of Nginx to select the proper version of OTel modules.
 		//    - run Nginx with -v to get the version
 		//    - store the version into a file where instrumentation initContainer can pick it up
-		nginxCloneScriptTemplate :=
-			`
+		nginxCloneScriptTemplate := `
 cp -r %[2]s/* %[3]s &&
 export %[4]s=$( { nginx -v ; } 2>&1 ) && echo ${%[4]s##*/} > %[3]s/version.txt
 `
@@ -128,12 +127,14 @@ export %[4]s=$( { nginx -v ; } 2>&1 ) && echo ${%[4]s##*/} > %[3]s/version.txt
 		// drop volume mount with volume-provided Nginx config from original container
 		// since it could over-write configuration provided by the injection
 		idxFound := -1
+
 		for idx, volume := range container.VolumeMounts {
 			if strings.Contains(volume.MountPath, nginxConfDir) { // potentially passes config, which we want to pass to init copy only
 				idxFound = idx
 				break
 			}
 		}
+
 		if idxFound >= 0 {
 			volumeMounts := container.VolumeMounts
 			volumeMounts = append(volumeMounts[:idxFound], volumeMounts[idxFound+1:]...)
@@ -160,7 +161,8 @@ export %[4]s=$( { nginx -v ; } 2>&1 ) && echo ${%[4]s##*/} > %[3]s/version.txt
 			Name: nginxAgentVolume,
 			VolumeSource: corev1.VolumeSource{
 				EmptyDir: &corev1.EmptyDirVolumeSource{},
-			}})
+			},
+		})
 
 		// Following is the template for a shell script, which does the actual instrumentation
 		// It does following:
@@ -176,8 +178,7 @@ export %[4]s=$( { nginx -v ; } 2>&1 ) && echo ${%[4]s##*/} > %[3]s/version.txt
 		// 9) Move OTel module configuration file to Nginx configuration directory.
 
 		// Each line of the script MUST end with \n !
-		nginxAgentI13nScript :=
-			`
+		nginxAgentI13nScript := `
 NGINX_AGENT_DIR_FULL=$1	\n
 NGINX_AGENT_CONF_DIR_FULL=$2 \n
 NGINX_CONFIG_FILE=$3 \n
@@ -247,13 +248,16 @@ mv ${NGINX_AGENT_CONF_DIR_FULL}/opentelemetry_agent.conf  ${NGINX_AGENT_CONF_DIR
 		})
 
 		found := false
+
 		for i, e := range container.Env {
 			if e.Name == nginxLibraryPathEnv {
 				container.Env[i].Value = e.Value + ":" + nginxAgentDirFull + "/sdk_lib/lib"
 				found = true
+
 				break
 			}
 		}
+
 		if !found {
 			container.Env = append(container.Env, corev1.EnvVar{
 				Name:  nginxLibraryPathEnv,
@@ -272,17 +276,19 @@ func isNginxInitContainerMissing(pod corev1.Pod, containerName string) bool {
 			return false
 		}
 	}
+
 	return true
 }
 
 // Calculate Nginx agent configuration file based on attributes provided by the injection rules
 // and by the pod values.
 func getNginxOtelConfig(pod corev1.Pod, nginxSpec v1alpha1.Nginx, index int, otelEndpoint string, resourceMap map[string]string) string {
-
 	if otelEndpoint == "" {
 		otelEndpoint = "http://localhost:4317/"
 	}
+
 	serviceName := chooseServiceName(pod, resourceMap, index)
+
 	serviceNamespace := pod.GetNamespace()
 	if len(serviceNamespace) == 0 {
 		serviceNamespace = resourceMap[string(semconv.K8SNamespaceNameKey)]
@@ -313,6 +319,7 @@ func getNginxOtelConfig(pod corev1.Pod, nginxSpec v1alpha1.Nginx, index int, ote
 	for key := range attrMap {
 		keys = append(keys, key)
 	}
+
 	sort.Strings(keys)
 
 	for _, key := range keys {
@@ -327,7 +334,9 @@ func getNginxConfDir(configuredFile string) string {
 	if configuredFile != "" {
 		nginxConfFile = configuredFile
 	}
+
 	configDir := filepath.Dir(nginxConfFile)
+
 	return configDir
 }
 
@@ -336,7 +345,9 @@ func getNginxConfFile(configuredFile string) string {
 	if configuredFile != "" {
 		nginxConfFile = configuredFile
 	}
+
 	configFilenameOnly := filepath.Base(nginxConfFile)
+
 	return configFilenameOnly
 }
 

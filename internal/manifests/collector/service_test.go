@@ -21,11 +21,10 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/open-telemetry/opentelemetry-operator/internal/manifests"
-	"github.com/open-telemetry/opentelemetry-operator/internal/manifests/manifestutils"
-
 	"github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
 	"github.com/open-telemetry/opentelemetry-operator/internal/config"
+	"github.com/open-telemetry/opentelemetry-operator/internal/manifests"
+	"github.com/open-telemetry/opentelemetry-operator/internal/manifests/manifestutils"
 )
 
 func TestExtractPortNumbersAndNames(t *testing.T) {
@@ -37,12 +36,10 @@ func TestExtractPortNumbersAndNames(t *testing.T) {
 		actualPortNumbers, actualPortNames := extractPortNumbersAndNames(ports)
 		assert.Equal(t, expectedPortNames, actualPortNames)
 		assert.Equal(t, expectedPortNumbers, actualPortNumbers)
-
 	})
 }
 
 func TestFilterPort(t *testing.T) {
-
 	tests := []struct {
 		name        string
 		candidate   v1.ServicePort
@@ -87,10 +84,9 @@ func TestFilterPort(t *testing.T) {
 				assert.Equal(t, test.expected, *actual)
 				return
 			}
+
 			assert.Nil(t, actual)
-
 		})
-
 	}
 }
 
@@ -110,10 +106,8 @@ func TestDesiredService(t *testing.T) {
 		actual, err := Service(params)
 		assert.ErrorContains(t, err, "no enabled receivers available as part of the configuration")
 		assert.Nil(t, actual)
-
 	})
 	t.Run("should return service with port mentioned in OtelCol.Spec.Ports and inferred ports", func(t *testing.T) {
-
 		grpc := "grpc"
 		jaegerPorts := v1.ServicePort{
 			Name:        "jaeger-grpc",
@@ -128,7 +122,6 @@ func TestDesiredService(t *testing.T) {
 		actual, err := Service(params)
 		assert.NoError(t, err)
 		assert.Equal(t, expected, *actual)
-
 	})
 
 	t.Run("on OpenShift gRPC appProtocol should be h2c", func(t *testing.T) {
@@ -147,13 +140,12 @@ func TestDesiredService(t *testing.T) {
 
 		ports := append(params.OtelCol.Spec.Ports, jaegerPort)
 		expected := service("test-collector", ports)
+
 		assert.NoError(t, err)
 		assert.Equal(t, expected, *actual)
-
 	})
 
 	t.Run("should return service with local internal traffic policy", func(t *testing.T) {
-
 		grpc := "grpc"
 		jaegerPorts := v1.ServicePort{
 			Name:        "jaeger-grpc",
@@ -183,7 +175,6 @@ func TestDesiredService(t *testing.T) {
 		actual, err := Service(params)
 		assert.ErrorContains(t, err, "couldn't parse the opentelemetry-collector configuration")
 		assert.Nil(t, actual)
-
 	})
 }
 

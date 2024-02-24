@@ -40,16 +40,16 @@ const (
 
 type ConfigApplier interface {
 	// Apply receives a name and namespace to apply an OpenTelemetryCollector CRD that is contained in the configmap.
-	Apply(name string, namespace string, configmap *protobufs.AgentConfigFile) error
+	Apply(name, namespace string, configmap *protobufs.AgentConfigFile) error
 
 	// GetInstance retrieves an OpenTelemetryCollector CRD given a name and namespace.
-	GetInstance(name string, namespace string) (*v1alpha1.OpenTelemetryCollector, error)
+	GetInstance(name, namespace string) (*v1alpha1.OpenTelemetryCollector, error)
 
 	// ListInstances retrieves all OpenTelemetryCollector CRDs created by the operator-opamp-bridge agent.
 	ListInstances() ([]v1alpha1.OpenTelemetryCollector, error)
 
 	// Delete attempts to delete an OpenTelemetryCollector object given a name and namespace.
-	Delete(name string, namespace string) error
+	Delete(name, namespace string) error
 }
 
 type Client struct {
@@ -82,7 +82,7 @@ func (c Client) labelSetContainsLabel(instance *v1alpha1.OpenTelemetryCollector,
 	return false
 }
 
-func (c Client) create(ctx context.Context, name string, namespace string, collector *v1alpha1.OpenTelemetryCollector) error {
+func (c Client) create(ctx context.Context, name, namespace string, collector *v1alpha1.OpenTelemetryCollector) error {
 	// Set the defaults
 	collector.Default()
 	collector.TypeMeta.Kind = CollectorResource
@@ -105,7 +105,7 @@ func (c Client) create(ctx context.Context, name string, namespace string, colle
 	return c.k8sClient.Create(ctx, collector)
 }
 
-func (c Client) update(ctx context.Context, old *v1alpha1.OpenTelemetryCollector, new *v1alpha1.OpenTelemetryCollector) error {
+func (c Client) update(ctx context.Context, old, new *v1alpha1.OpenTelemetryCollector) error {
 	new.ObjectMeta = old.ObjectMeta
 	new.TypeMeta = old.TypeMeta
 	warnings, err := new.ValidateUpdate(old)
@@ -119,7 +119,7 @@ func (c Client) update(ctx context.Context, old *v1alpha1.OpenTelemetryCollector
 	return c.k8sClient.Update(ctx, new)
 }
 
-func (c Client) Apply(name string, namespace string, configmap *protobufs.AgentConfigFile) error {
+func (c Client) Apply(name, namespace string, configmap *protobufs.AgentConfigFile) error {
 	c.log.Info("Received new config", "name", name, "namespace", namespace)
 	var collector v1alpha1.OpenTelemetryCollector
 	err := yaml.Unmarshal(configmap.Body, &collector)
@@ -160,7 +160,7 @@ func (c Client) Apply(name string, namespace string, configmap *protobufs.AgentC
 	return c.update(ctx, instance, updatedCollector)
 }
 
-func (c Client) Delete(name string, namespace string) error {
+func (c Client) Delete(name, namespace string) error {
 	ctx := context.Background()
 	result := v1alpha1.OpenTelemetryCollector{}
 	err := c.k8sClient.Get(ctx, client.ObjectKey{
@@ -203,7 +203,7 @@ func (c Client) ListInstances() ([]v1alpha1.OpenTelemetryCollector, error) {
 	return items, nil
 }
 
-func (c Client) GetInstance(name string, namespace string) (*v1alpha1.OpenTelemetryCollector, error) {
+func (c Client) GetInstance(name, namespace string) (*v1alpha1.OpenTelemetryCollector, error) {
 	ctx := context.Background()
 	result := v1alpha1.OpenTelemetryCollector{}
 	err := c.k8sClient.Get(ctx, client.ObjectKey{

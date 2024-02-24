@@ -32,12 +32,16 @@ func TestHPA(t *testing.T) {
 	type test struct {
 		name string
 	}
+
 	v2Test := test{}
 	tests := []test{v2Test}
 
 	var minReplicas int32 = 3
+
 	var maxReplicas int32 = 5
+
 	var cpuUtilization int32 = 66
+
 	var memoryUtilization int32 = 77
 
 	otelcols := []v1alpha1.OpenTelemetryCollector{
@@ -99,5 +103,4 @@ func TestHPA(t *testing.T) {
 			})
 		}
 	}
-
 }
