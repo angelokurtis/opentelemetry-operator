@@ -20,6 +20,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"runtime"
 	"strings"
@@ -30,6 +31,7 @@ import (
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/spf13/pflag"
 	colfeaturegate "go.opentelemetry.io/collector/featuregate"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	k8sruntime "k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/kubernetes"
@@ -198,6 +200,9 @@ func main() {
 	defer shutdown()
 
 	restConfig := ctrl.GetConfigOrDie()
+	restConfig.WrapTransport = func(rt http.RoundTripper) http.RoundTripper {
+		return otelhttp.NewTransport(rt)
+	}
 
 	// builds the operator's configuration
 	ad, err := autodetect.New(restConfig)
