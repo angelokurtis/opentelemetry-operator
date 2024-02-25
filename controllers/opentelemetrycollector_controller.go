@@ -18,6 +18,7 @@ package controllers
 import (
 	"context"
 
+	"github.com/angelokurtis/go-otel/span"
 	"github.com/go-logr/logr"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -94,6 +95,9 @@ func NewReconciler(p Params) *OpenTelemetryCollectorReconciler {
 
 // Reconcile the current state of an OpenTelemetry collector resource with the desired state.
 func (r *OpenTelemetryCollectorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	ctx, end := span.Start(ctx)
+	defer end()
+
 	log := r.log.WithValues("opentelemetrycollector", req.NamespacedName)
 
 	var instance v1alpha1.OpenTelemetryCollector
