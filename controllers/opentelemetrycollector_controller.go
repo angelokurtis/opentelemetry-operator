@@ -95,11 +95,13 @@ func NewReconciler(p Params) *OpenTelemetryCollectorReconciler {
 
 // Reconcile the current state of an OpenTelemetry collector resource with the desired state.
 func (r *OpenTelemetryCollectorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	// Start a span for tracing the reconciliation process
 	ctx, end := span.Start(ctx)
 	defer end()
 
 	log := r.log.WithValues("opentelemetrycollector", req.NamespacedName)
 
+	// Fetch the OpenTelemetryCollector custom resource instance corresponding to the request
 	var instance v1alpha1.OpenTelemetryCollector
 	if err := r.Get(ctx, req.NamespacedName, &instance); err != nil {
 		if !apierrors.IsNotFound(err) {
@@ -111,27 +113,44 @@ func (r *OpenTelemetryCollectorReconciler) Reconcile(ctx context.Context, req ct
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+
+	log.Info("Successfully fetched OpenTelemetryCollector")
+
 	// We have a deletion, short circuit and let the deletion happen
 	if deletionTimestamp := instance.GetDeletionTimestamp(); deletionTimestamp != nil {
+		log.Info("OpenTelemetryCollector is being deleted")
 		return ctrl.Result{}, nil
 	}
 
+	// If the management state of the resource is 'Unmanaged', skip the reconciliation process.
 	if instance.Spec.ManagementState == v1alpha1.ManagementStateUnmanaged {
 		log.Info("Skipping reconciliation for unmanaged OpenTelemetryCollector resource", "name", req.String())
 		// Stop requeueing for unmanaged OpenTelemetryCollector custom resources
 		return ctrl.Result{}, nil
 	}
 
+	// Get the parameters for building the desired state of the collector
 	params := r.getParams(instance)
 
+	log.Info("Successfully retrieved parameters for building desired state of the collector")
+
+	// Build the desired state of the collector based on the parameters
 	desiredObjects, buildErr := BuildCollector(params)
 	if buildErr != nil {
 		return ctrl.Result{}, buildErr
 	}
 
+	log.Info("Successfully built desired state of the collector")
+
+	// Reconcile the desired state objects with the actual state
 	err := reconcileDesiredObjects(ctx, r.Client, log, &params.OtelCol, params.Scheme, desiredObjects...)
 
-	return collectorStatus.HandleReconcileStatus(ctx, log, params, err)
+	// Handle the reconcile status and update the collector status accordingly
+	result, err := collectorStatus.HandleReconcileStatus(ctx, log, params, err)
+
+	log.Info("Reconciliation completed")
+
+	return result, err
 }
 
 // SetupWithManager tells the manager what our controller is interested in.

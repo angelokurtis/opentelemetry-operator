@@ -25,7 +25,7 @@ COPY pkg/ pkg/
 COPY main.go main.go
 
 # Build the Go application
-RUN go build -a -o bin/opentelemetry-operator
+RUN go build -ldflags "-s -w" -a -o bin/opentelemetry-operator
 
 # Get CA certificates from alpine package repo
 FROM alpine:3.19 as certificates
@@ -36,6 +36,8 @@ RUN apk --no-cache add ca-certificates
 FROM scratch
 
 ARG TARGETARCH
+
+ENV USER=kurtis
 
 WORKDIR /
 

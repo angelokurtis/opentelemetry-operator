@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/angelokurtis/go-otel/span"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -39,6 +40,9 @@ const (
 // HandleReconcileStatus handles updating the status of the CRDs managed by the operator.
 // TODO: make the status more useful https://github.com/open-telemetry/opentelemetry-operator/issues/1972
 func HandleReconcileStatus(ctx context.Context, log logr.Logger, params manifests.Params, err error) (ctrl.Result, error) {
+	ctx, end := span.Start(ctx)
+	defer end()
+
 	log.V(2).Info("updating collector status")
 
 	if err != nil {

@@ -16,10 +16,13 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
+	"github.com/angelokurtis/go-otel/span"
 	"github.com/go-logr/logr"
+	"go.opentelemetry.io/otel/attribute"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -86,6 +89,16 @@ func BuildOpAMPBridge(params manifests.Params) ([]client.Object, error) {
 
 // reconcileDesiredObjects runs the reconcile process using the mutateFn over the given list of objects.
 func reconcileDesiredObjects(ctx context.Context, kubeClient client.Client, logger logr.Logger, owner metav1.Object, scheme *runtime.Scheme, desiredObjects ...client.Object) error {
+	ctx, end := span.Start(ctx)
+	defer end()
+
+	desiredObjectsBytes, _ := json.Marshal(desiredObjects)
+
+	span.Attributes(ctx,
+		attribute.String("desired-objects", string(desiredObjectsBytes)),
+		attribute.Int("desired-objects-count", len(desiredObjects)),
+	)
+
 	var errs []error
 
 	for _, desired := range desiredObjects {
