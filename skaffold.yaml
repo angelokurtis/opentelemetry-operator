@@ -1,0 +1,13 @@
+apiVersion: skaffold/v4beta9
+kind: Config
+metadata:
+  name: opentelemetry-operator
+build:
+  artifacts:
+    - image: kurtis/opentelemetry-operator
+      docker:
+        dockerfile: Dockerfile
+
+manifests:
+  rawYaml:
+    - k8s/opentelemetry-operator.yaml

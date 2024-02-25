@@ -10,6 +10,7 @@ help: ## Display this help.
 .PHONY: build
 build: format ## Compiles the source code.
 	go build ./...
+
 .PHONY: generate
 generate: wire ## Compile-time Dependency Injection using code generation.
 	$(WIRE) ./...
