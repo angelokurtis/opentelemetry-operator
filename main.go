@@ -19,11 +19,13 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 	"strings"
 	"time"
 
+	"github.com/angelokurtis/go-otel/starter"
 	routev1 "github.com/openshift/api/route/v1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/spf13/pflag"
@@ -61,6 +63,13 @@ import (
 var (
 	scheme   = k8sruntime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
+)
+
+const (
+	serviceNameEnv                = "OTEL_SERVICE_NAME"
+	tracesExporterEnv             = "OTEL_TRACES_EXPORTER"
+	metricsExporterEnv            = "OTEL_METRICS_EXPORTER"
+	exporterOTLPTracesEndpointEnv = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
 )
 
 type tlsConfig struct {
@@ -163,6 +172,30 @@ func main() {
 		"go-os", runtime.GOOS,
 		"labels-filter", labelsFilter,
 	)
+
+	// If the environment variables for OpenTelemetry aren't set, set them to default values.
+	if _, ok := os.LookupEnv(serviceNameEnv); !ok {
+		_ = os.Setenv(serviceNameEnv, "opentelemetry-operator")
+	}
+
+	if _, ok := os.LookupEnv(tracesExporterEnv); !ok {
+		_ = os.Setenv(tracesExporterEnv, "otlp")
+	}
+
+	if _, ok := os.LookupEnv(metricsExporterEnv); !ok {
+		_ = os.Setenv(metricsExporterEnv, "none")
+	}
+
+	if _, ok := os.LookupEnv(exporterOTLPTracesEndpointEnv); !ok {
+		_ = os.Setenv(exporterOTLPTracesEndpointEnv, "http://jaeger-collector.jaeger:4317")
+	}
+
+	// Initialize OpenTelemetry with environment variables
+	_, shutdown, err := starter.StartProviders(context.Background())
+	if err != nil {
+		log.Fatalf("Error initializing OpenTelemetry: %v", err)
+	}
+	defer shutdown()
 
 	restConfig := ctrl.GetConfigOrDie()
 
