@@ -9,8 +9,8 @@ metadata:
     app.kubernetes.io/instance: opentelemetry-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: opentelemetry-operator
-    app.kubernetes.io/version: 0.93.0
-    helm.sh/chart: opentelemetry-operator-0.47.1
+    app.kubernetes.io/version: 0.94.0
+    helm.sh/chart: opentelemetry-operator-0.48.0
     helm.toolkit.fluxcd.io/name: opentelemetry-operator
     helm.toolkit.fluxcd.io/namespace: otel
   name: opentelemetry-operator
@@ -32,7 +32,6 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: manager
-        kubectl.kubernetes.io/restartedAt: "2024-02-25T15:26:52-03:00"
       labels:
         app.kubernetes.io/component: controller-manager
         app.kubernetes.io/name: opentelemetry-operator
@@ -43,7 +42,7 @@ spec:
             - --enable-leader-election
             - --health-probe-addr=:8081
             - --webhook-port=9443
-            - --collector-image=otel/opentelemetry-collector-contrib:0.93.0
+            - --collector-image=otel/opentelemetry-collector-contrib:0.94.0
             - --zap-devel
           command:
             - /manager
