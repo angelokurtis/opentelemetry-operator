@@ -22,6 +22,7 @@ import (
 
 	"github.com/angelokurtis/go-otel/span"
 	"github.com/go-logr/logr"
+	"github.com/gotidy/ptr"
 	"go.opentelemetry.io/otel/attribute"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -92,10 +93,9 @@ func reconcileDesiredObjects(ctx context.Context, kubeClient client.Client, logg
 	ctx, end := span.Start(ctx)
 	defer end()
 
-	desiredObjectsBytes, _ := json.Marshal(desiredObjects)
-
+	do := NewDesiredObjects(desiredObjects)
 	span.Attributes(ctx,
-		attribute.String("desired-objects", string(desiredObjectsBytes)),
+		attribute.String("desired-objects", do.Marshal()),
 		attribute.Int("desired-objects-count", len(desiredObjects)),
 	)
 
@@ -153,4 +153,36 @@ func reconcileDesiredObjects(ctx context.Context, kubeClient client.Client, logg
 	}
 
 	return nil
+}
+
+type DesiredObjects []*DesiredObject
+
+func NewDesiredObjects(objs []client.Object) DesiredObjects {
+	result := make([]*DesiredObject, 0, len(objs))
+
+	for _, obj := range objs {
+		var namespace *string
+		if obj.GetNamespace() != "" {
+			namespace = ptr.Of(obj.GetNamespace())
+		}
+
+		result = append(result, &DesiredObject{
+			Kind:      obj.GetObjectKind().GroupVersionKind().String(),
+			Name:      obj.GetName(),
+			Namespace: namespace,
+		})
+	}
+
+	return result
+}
+
+func (r *DesiredObjects) Marshal() string {
+	bytes, _ := json.Marshal(r)
+	return string(bytes)
+}
+
+type DesiredObject struct {
+	Kind      string  `json:"kind"`
+	Name      string  `json:"name"`
+	Namespace *string `json:"namespace,omitempty"`
 }
